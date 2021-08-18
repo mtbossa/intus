@@ -1,0 +1,38 @@
+[
+  {
+    "post_id": 92,
+    "media_name": "teste de imagem",
+    "media_url": "https://intus-medias-paineis.s3.amazonaws.com/medias/1/teste-de-imagem.png",
+    "media_duration": 5000,
+    "media_type": "image",
+    "media_extension": "png",
+    "local_path": "medias/teste-de-imagem.png"
+  },
+  {
+    "post_id": 95,
+    "media_name": "video4",
+    "media_url": "https://intus-medias-paineis.s3.amazonaws.com/medias/1/video4.mp4",
+    "media_duration": 10830,
+    "media_type": "video",
+    "media_extension": "mp4",
+    "local_path": "medias/video4.mp4"
+  },
+  {
+    "post_id": 103,
+    "media_name": "teste de imagem",
+    "media_url": "https://intus-medias-paineis.s3.amazonaws.com/medias/1/teste-de-imagem.png",
+    "media_duration": 5000,
+    "media_type": "image",
+    "media_extension": "png",
+    "local_path": "medias/teste-de-imagem.png"
+  },
+  {
+    "post_id": 104,
+    "media_name": "midia nova",
+    "media_url": "https://intus-medias-paineis.s3.amazonaws.com/medias/1/midia-nova.mp4",
+    "media_duration": 9770,
+    "media_type": "video",
+    "media_extension": "mp4",
+    "local_path": "medias/midia-nova.mp4"
+  }
+]
