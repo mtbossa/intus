@@ -7,8 +7,6 @@ def open_file(file_name):
 
     complete_index_path = '"' + current_script_path + '\\' + file_name + '"'
 
-    print(complete_index_path)
-
     command = 'chrome ' + complete_index_path + ' /incognito --start-fullscreen --disable-session-crashed-bubble ' \
                                                 '--disable-infobars'
 
