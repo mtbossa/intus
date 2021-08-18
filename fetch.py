@@ -20,8 +20,6 @@ def fetch_api(display_id):
 
     api_response = requests.get(api_url, headers=headers)
 
-    print(api_response.status_code)
-
     if api_response.status_code == 200:
 
         generate_etag_json(api_response.headers['ETag'])
@@ -32,6 +30,10 @@ def fetch_api(display_id):
             generate_local_json(content)
         else:
             generate_local_json(content)
+
+        return True
+    else:
+        return False
 
 
 def generate_etag_json(etag):
@@ -87,5 +89,3 @@ def download_media(media):
             f.write(media_response.content)
 
     return complete_path
-
-
