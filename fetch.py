@@ -28,10 +28,7 @@ def fetch_api(display_id):
 
         content = json.loads(api_response.content)
 
-        if not (os.path.isfile('local_data.json')):
-            generate_local_json(content)
-        else:
-            generate_local_json(content)
+        generate_local_json(content)
 
         return True
     else:

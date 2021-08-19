@@ -47,10 +47,10 @@
     </body>
 
     <script>        
-        window.addEventListener('load', (event) => {
+        window.addEventListener('load', (event) => {            
 
-            const posts = {{ posts|safe }}
-            console.log(posts)
+            const posts = {{ posts|safe }};
+            console.log(posts);
             const currentAmountOfPosts = posts.length;
 
             let firstTime = true;
@@ -60,15 +60,14 @@
 
             function nextPost()
             {
-                if(mediaElements[currentMediaIndex].tagName == 'IMG') {
-                    console.log('inside media');
+                if(mediaElements[currentMediaIndex].tagName == 'IMG') {                    
                     mediaElements[currentMediaIndex]
                         .classList.add("selected");   
-                    console.log('inside next post');
+                    
                     let post = posts[currentMediaIndex];
                         
                     let duration = post.media_duration;
-                    console.log(duration);
+                    
                     setTimeout(function() {
                         mediaElements[currentMediaIndex]
                             .classList.remove("selected");
@@ -93,6 +92,100 @@
                 }                
             }
 
+            let checkPostsInterval = 5000;
+            let lastModifiedDate = '';    
+
+            setInterval(checkPostsUpdate, checkPostsInterval);
+
+            function checkPostsUpdate()            
+            {
+                console.log('checking for updates');
+
+                let myHeaders = new Headers();
+
+                myHeaders.append('If-Modified-Since', lastModifiedDate)
+                myHeaders.append('Content-Type', 'application/json')
+
+                let myRequest = new Request('http://localhost:8000', {
+                    method: 'GET',
+                    headers: myHeaders,
+                    mode: 'cors',
+                });
+
+                fetch(myRequest)
+                    .then(response => { 
+                        if (response.status == 302) {
+                            throw new Error ('not modified')
+                        }        
+                        lastModifiedDate = response.headers.get('Last-Modified')
+                        return response.json()
+                    })
+                    .then(data => {
+                        console.log(data)
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    }) 
+            }
+
+            function removeDeletedPosts(responsePosts)
+            {      
+                // TODO verificar a diferença entre os posts atual o que veio da reponse e excluir o diferente
+                const responsePostsIds = [];
+                const currentPostsIds = [];
+
+                responsePosts.forEach(function(e) {
+                    responsePostsIds.push(e.id);
+                });
+                posts.forEach(function(e) {
+                    currentPostsIds.push(e.id);
+                });
+
+                let removedPostsIds = currentPostsIds.filter(x => !responsePostsIds.includes(x));
+                console.table(removedPostsIds);
+                removedPostsIds.forEach(function(removedPostId) {
+                    const deleteElement = document.getElementById(removedPostId);
+                    deleteElement.remove();
+                })
+
+            }
+
+            function createAddedPosts(responsePosts)
+            {
+                let newPosts = responsePosts.slice(currentAmountOfPosts);                         
+
+                newPosts.forEach(function(newPost) {
+                    switch(newPost.media.type) {
+                        case 'image':
+                            let newImage = document.createElement('img');
+
+                            newImage.id  = newPost.id;
+                            newImage.src = "https://intus-medias-paineis.s3.amazonaws.com/" + newPost.media.path;
+                            newImage.alt = newPost.media.name;
+
+                            slider.appendChild(newImage);
+                            break;
+
+                        case 'video':
+                            let newVideo    = document.createElement('video');
+                            let newSource   = document.createElement('source');
+                            
+                            newVideo.id     = newPost.id;
+                            newVideo.width  = 1920;
+                            newVideo.height = 1080;
+                            newVideo.muted  = true;                                
+                            newSource.type  = newPost.media.type + '/' + newPost.media.extension;
+                            newSource.src   = "https://intus-medias-paineis.s3.amazonaws.com/" + newPost.media.path;
+
+                            newVideo.appendChild(newSource);
+                            slider.appendChild(newVideo);
+
+                            addEventToVideo(newVideo);
+                            break;
+                    }                                                               
+                });
+            }
+
             function addEventToVideo(video)
             {
                 video.addEventListener('ended', function(e) {  
@@ -110,11 +203,11 @@
             }
 
             const videos = document.querySelectorAll('video');  
-            if(videos.length > 0) {                        
-
+            if(videos.length > 0) { 
                 videos.forEach(function(video) {
                     addEventToVideo(video);
                 });
+
                 nextPost();
             } else {
                 nextPost();

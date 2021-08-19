@@ -1,37 +1,38 @@
-import asyncio
 import os
+import threading
 import time
-from datetime import datetime
 
 import generate_index
 import fetch
 import chrome
-import utils
+import webserver
 
 display_id = 3
+request_time = 60
 
 
-async def main():
-    start_time = 0
+def main():
+    # Opens the loader if first time opening the Raspberry
     if not (os.path.isfile('local_data.json')):
         chrome.open_file('loader.html')
+        fetch.fetch_api(display_id)
+        generate_index.generate('local_data.json')
+        chrome.close()
+        chrome.open_file('index.html')
     else:
         chrome.open_file('index.html')
-        start_time = datetime.now()
 
     while True:
         if fetch.fetch_api(display_id):
-            current_total_duration = utils.get_total_duration('local_data.json')
             generate_index.generate('local_data.json')
-            if start_time != 0:
-                await chrome.finish_posts(start_time, current_total_duration)
-            chrome.close()
-            chrome.open_file('index.html')
-            start_time = datetime.now()
-            time.sleep(10)
+            time.sleep(request_time)
         else:
             print('no new data found')
-            time.sleep(10)
+            time.sleep(request_time)
 
 
-asyncio.run(main())
+# Start the local server so the Javascript inside index.html can fetch the local_data.json file
+threading.Thread(target=webserver.run_server).start()
+
+# Starts the main code
+main()
