@@ -5,6 +5,7 @@ import json
 
 
 def fetch_api(display_id):
+    print('fetching data')
     api_url = 'http://localhost/api/fetch-display-posts/' + str(display_id)
 
     if not (os.path.isfile('etag.json')):
@@ -21,6 +22,7 @@ def fetch_api(display_id):
     api_response = requests.get(api_url, headers=headers)
 
     if api_response.status_code == 200:
+        print('new data found')
 
         generate_etag_json(api_response.headers['ETag'])
 
@@ -82,7 +84,7 @@ def download_media(media):
 
     if not (os.path.isfile(complete_path)):
         media_url = 'https://intus-medias-paineis.s3.amazonaws.com/' + path
-
+        print('downloading media')
         media_response = requests.get(media_url)
 
         with open(complete_path, 'wb') as f:
