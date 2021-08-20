@@ -95,7 +95,7 @@
             let checkPostsInterval = 5000;
             let lastModifiedDate = '';    
 
-            setInterval(checkPostsUpdate, checkPostsInterval);
+            setTimeout(checkPostsUpdate, checkPostsInterval);
 
             function checkPostsUpdate()            
             {
@@ -103,8 +103,8 @@
 
                 let myHeaders = new Headers();
 
-                myHeaders.append('If-Modified-Since', lastModifiedDate)
-                myHeaders.append('Content-Type', 'application/json')
+                myHeaders.append('If-Modified-Since', lastModifiedDate);
+                myHeaders.append('Content-Type', 'application/json');
 
                 let myRequest = new Request('http://localhost:8000', {
                     method: 'GET',
@@ -115,16 +115,17 @@
                 fetch(myRequest)
                     .then(response => { 
                         if (response.status == 302) {
-                            throw new Error ('not modified')
+                            throw new Error ('not modified');
                         }        
-                        lastModifiedDate = response.headers.get('Last-Modified')
-                        return response.json()
+                        lastModifiedDate = response.headers.get('Last-Modified');
+                        return response.json();
                     })
                     .then(data => {
-                        console.log(data)
+                        console.log(data);
+                        setTimeout(checkPostsUpdate, checkPostsInterval);
                     })
                     .catch(error => {
-                        console.log(error)
+                        console.log(error);
                     }) 
             }
 

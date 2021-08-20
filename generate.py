@@ -3,7 +3,7 @@ import json
 from jinja2 import Environment, FileSystemLoader
 
 
-def generate(local_data):
+def index(local_data: str) -> None:
 
     with open(local_data, 'r') as f:
         posts = json.loads(f.read())

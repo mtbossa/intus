@@ -36,7 +36,7 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(bytes('not modified', 'utf-8'))
 
 
-def run_server():
+def run_server() -> None:
     PORT = 8000
     server_address = ('localhost', PORT)
     server = HTTPServer(server_address, Handler)

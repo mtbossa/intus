@@ -4,7 +4,7 @@ import os
 import pathlib
 
 
-def open_file(file_name):
+def open_file(file_name: str) -> None:
     current_script_path = str(pathlib.Path(__file__).parent.resolve())
 
     complete_index_path = '"' + current_script_path + '\\' + file_name + '"'
@@ -15,6 +15,6 @@ def open_file(file_name):
     os.popen(command)
 
 
-def close():
+def close() -> None:
     os.system("TASKKILL /F /IM chrome.exe")
 

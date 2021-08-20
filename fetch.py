@@ -4,7 +4,7 @@ import requests
 import json
 
 
-def fetch_api(display_id):
+def current_display_posts_api(display_id: int) -> bool:
     print('fetching data')
     api_url = 'http://localhost/api/fetch-display-posts/' + str(display_id)
 
@@ -35,7 +35,7 @@ def fetch_api(display_id):
         return False
 
 
-def generate_etag_json(etag):
+def generate_etag_json(etag: str) -> None:
     etag_dict = {
         'etag': etag
     }
@@ -45,7 +45,7 @@ def generate_etag_json(etag):
         f.write(json_string)
 
 
-def generate_local_json(content):
+def generate_local_json(content: dict) -> None:
     posts_dict = []
     for post in content['posts']:
         complete_path = download_media(post['media'])
@@ -65,7 +65,7 @@ def generate_local_json(content):
         f.write(local_json_posts)
 
 
-def download_media(media):
+def download_media(media: dict) -> str:
     if not (os.path.isdir('medias')):
         os.mkdir('medias')
 
@@ -79,6 +79,7 @@ def download_media(media):
 
     complete_path = 'medias/' + file_name
 
+    # Only downloads the file if it's not already downloaded
     if not (os.path.isfile(complete_path)):
         media_url = 'https://intus-medias-paineis.s3.amazonaws.com/' + path
         print('downloading media')
