@@ -49,10 +49,10 @@
     <script>        
         window.addEventListener('load', (event) => {            
 
-            const posts = {{ posts|safe }};
+            let posts = {{ posts|safe }};
             console.log(posts);
-            const currentAmountOfPosts = posts.length;
 
+            let currentAmountOfPosts = posts.length;
             let firstTime = true;
             let currentMediaIndex = 0;
             let mediaElements = document.querySelectorAll("#slider img, video");
@@ -120,26 +120,46 @@
                         lastModifiedDate = response.headers.get('Last-Modified');
                         return response.json();
                     })
-                    .then(data => {
-                        console.log(data);
+                    .then(data => {                                              
+                        console.log('inside .then fetch data: ', data);
+
+                        const slider = document.getElementById('slider');
+
+                        let responsePosts = data;
+
+                        if(responsePosts.length > currentAmountOfPosts) {
+                            console.log('inside add');
+                            createAddedPosts(responsePosts);  
+                            console.log('after addedposts');                              
+                        } else if(responsePosts.length < currentAmountOfPosts) {
+                            console.log('inside remove');
+                            removeDeletedPosts(responsePosts);
+                        }
+
+                        console.log('before posts = responsePosts:', posts);
+                        posts = responsePosts;
+                        console.log('posts inside check: ', posts);
+                        currentAmountOfPosts = responsePosts.length;
+                        mediaElements = document.querySelectorAll("#slider img, video");
+                        amountOfMedia = mediaElements.length;  
+                        
                         setTimeout(checkPostsUpdate, checkPostsInterval);
                     })
                     .catch(error => {
-                        console.log(error);
+                        setTimeout(checkPostsUpdate, checkPostsInterval);
                     }) 
             }
 
             function removeDeletedPosts(responsePosts)
-            {      
-                // TODO verificar a diferença entre os posts atual o que veio da reponse e excluir o diferente
+            {                      
                 const responsePostsIds = [];
                 const currentPostsIds = [];
 
                 responsePosts.forEach(function(e) {
-                    responsePostsIds.push(e.id);
+                    responsePostsIds.push(e.post_id);
                 });
                 posts.forEach(function(e) {
-                    currentPostsIds.push(e.id);
+                    currentPostsIds.push(e.post_id);
                 });
 
                 let removedPostsIds = currentPostsIds.filter(x => !responsePostsIds.includes(x));
@@ -154,15 +174,15 @@
             function createAddedPosts(responsePosts)
             {
                 let newPosts = responsePosts.slice(currentAmountOfPosts);                         
-
+                console.log('newPosts: ', newPosts);
                 newPosts.forEach(function(newPost) {
-                    switch(newPost.media.type) {
+                    switch(newPost.media_type) {
                         case 'image':
                             let newImage = document.createElement('img');
 
-                            newImage.id  = newPost.id;
-                            newImage.src = "https://intus-medias-paineis.s3.amazonaws.com/" + newPost.media.path;
-                            newImage.alt = newPost.media.name;
+                            newImage.id  = newPost.post_id;
+                            newImage.src = newPost.local_path;
+                            newImage.alt = newPost.media_name;
 
                             slider.appendChild(newImage);
                             break;
@@ -171,12 +191,12 @@
                             let newVideo    = document.createElement('video');
                             let newSource   = document.createElement('source');
                             
-                            newVideo.id     = newPost.id;
+                            newVideo.id     = newPost.post_id;
                             newVideo.width  = 1920;
                             newVideo.height = 1080;
                             newVideo.muted  = true;                                
-                            newSource.type  = newPost.media.type + '/' + newPost.media.extension;
-                            newSource.src   = "https://intus-medias-paineis.s3.amazonaws.com/" + newPost.media.path;
+                            newSource.type  = newPost.media_type + '/' + newPost.media_extension;
+                            newSource.src   = newPost.local_path;
 
                             newVideo.appendChild(newSource);
                             slider.appendChild(newVideo);
@@ -185,6 +205,7 @@
                             break;
                     }                                                               
                 });
+                console.log('end createAddedPosts');
             }
 
             function addEventToVideo(video)

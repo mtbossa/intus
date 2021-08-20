@@ -8,7 +8,7 @@ import chrome
 import webserver
 
 display_id = 3
-request_time = 60
+request_time = 10
 
 
 def main() -> None:
