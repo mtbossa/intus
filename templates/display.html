@@ -32,6 +32,7 @@
     </head>
     <body>
 
+        <!--suppress SpellCheckingInspection -->
         <div id="slider">
             {% for post in posts %}
                 {% if post.media_type == 'image' %}
@@ -50,7 +51,6 @@
         window.addEventListener('load', (event) => {            
 
             let posts = {{ posts|safe }};
-            console.log(posts);
 
             let currentAmountOfPosts = posts.length;
             let firstTime = true;
@@ -99,8 +99,6 @@
 
             function checkPostsUpdate()            
             {
-                console.log('checking for updates');
-
                 let myHeaders = new Headers();
 
                 myHeaders.append('If-Modified-Since', lastModifiedDate);
@@ -120,25 +118,18 @@
                         lastModifiedDate = response.headers.get('Last-Modified');
                         return response.json();
                     })
-                    .then(data => {                                              
-                        console.log('inside .then fetch data: ', data);
-
+                    .then(data => {
                         const slider = document.getElementById('slider');
 
                         let responsePosts = data;
 
                         if(responsePosts.length > currentAmountOfPosts) {
-                            console.log('inside add');
-                            createAddedPosts(responsePosts);  
-                            console.log('after addedposts');                              
+                            createAddedPosts(responsePosts);
                         } else if(responsePosts.length < currentAmountOfPosts) {
-                            console.log('inside remove');
                             removeDeletedPosts(responsePosts);
                         }
 
-                        console.log('before posts = responsePosts:', posts);
                         posts = responsePosts;
-                        console.log('posts inside check: ', posts);
                         currentAmountOfPosts = responsePosts.length;
                         mediaElements = document.querySelectorAll("#slider img, video");
                         amountOfMedia = mediaElements.length;  
@@ -174,7 +165,7 @@
             function createAddedPosts(responsePosts)
             {
                 let newPosts = responsePosts.slice(currentAmountOfPosts);                         
-                console.log('newPosts: ', newPosts);
+
                 newPosts.forEach(function(newPost) {
                     switch(newPost.media_type) {
                         case 'image':
@@ -205,7 +196,6 @@
                             break;
                     }                                                               
                 });
-                console.log('end createAddedPosts');
             }
 
             function addEventToVideo(video)
