@@ -3,3 +3,4 @@ medias/
 index.html
 __pycache__/
 .idea/
+venv/
