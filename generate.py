@@ -1,6 +1,6 @@
 """
 Responsible for generating
-the index.html page
+the index.html page.
 """
 
 import json
@@ -11,7 +11,7 @@ from jinja2 import Environment, FileSystemLoader
 def index() -> None:
     """
     Generate index.html page
-    using Jinja2 template
+    using Jinja2 template.
     """
     with open('local_data.json', 'r') as f:
         posts = json.loads(f.read())

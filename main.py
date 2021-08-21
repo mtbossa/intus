@@ -1,6 +1,6 @@
 """
 The main workflow of the
-program
+program.
 """
 
 import os
@@ -18,9 +18,7 @@ REQUEST_TIME = config.get_request_time()
 
 
 def main() -> None:
-    """
-    Runs the main logic of the program
-    """
+    """Runs the main logic of the program."""
     # Opens loader.html if first time opening the Raspberry
     if not os.path.isfile('local_data.json'):
         chrome.open_file('loader.html')
