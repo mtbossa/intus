@@ -1,6 +1,6 @@
 """
 Contains functions for fetching the API
-and download the medias
+and download the medias.
 """
 
 import os
@@ -14,7 +14,7 @@ import config
 def current_display_posts_api(display_id: int) -> bool:
     """
     Check the API of the correspondent display
-    for posts updates
+    for posts updates.
     """
     print('fetching data')
     api_url = config.get_api_url() + str(display_id)
@@ -49,7 +49,7 @@ def current_display_posts_api(display_id: int) -> bool:
 def _generate_etag_json(etag: str) -> None:
     """
     Generate etag.json file which
-    holds the last response ETag
+    holds the last response ETag.
     """
     etag_dict = {
         'etag': etag
@@ -63,7 +63,7 @@ def _generate_etag_json(etag: str) -> None:
 def _generate_local_json(content: dict) -> None:
     """
     Generate local_data.json which
-    holds the local data info for Javascript usage
+    holds the local data info for Javascript usage.
     """
     posts_dict = []
     for post in content['posts']:
@@ -87,7 +87,7 @@ def _generate_local_json(content: dict) -> None:
 def _download_media(media: dict) -> str:
     """
     Download the media if not already
-    downloaded
+    downloaded.
     """
     if not os.path.isdir('medias'):
         os.mkdir('medias')

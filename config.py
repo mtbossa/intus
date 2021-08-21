@@ -1,6 +1,6 @@
 """
 Functions related to the
-config file
+config file.
 """
 
 import json
@@ -9,7 +9,7 @@ import json
 def _get_config_json() -> dict:
     """
     Loads the config.json file and
-    returns its content as Python Object
+    returns its content as Python Object.
     """
     with open('.config.json', 'r') as f:
         return json.loads(f.read())
@@ -18,7 +18,7 @@ def _get_config_json() -> dict:
 def get_api_url() -> str:
     """
     Return the api_url from the
-    config.json file
+    config.json file.
     """
     config_json = _get_config_json()
 
@@ -28,7 +28,7 @@ def get_api_url() -> str:
 def get_display_id() -> int:
     """
     Return the display_id from the
-    config.json file
+    config.json file.
     """
     config_json = _get_config_json()
 
@@ -38,7 +38,7 @@ def get_display_id() -> int:
 def get_request_time() -> int:
     """
     Return the request_time from the
-    config.json file
+    config.json file.
     """
     config_json = _get_config_json()
 
