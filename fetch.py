@@ -3,10 +3,12 @@ import os
 import requests
 import json
 
+import config
+
 
 def current_display_posts_api(display_id: int) -> bool:
     print('fetching data')
-    api_url = 'http://localhost/api/fetch-display-posts/' + str(display_id)
+    api_url = config.get_api_url() + str(display_id)
 
     if not (os.path.isfile('etag.json')):
         etag = '""'

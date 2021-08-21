@@ -2,13 +2,14 @@ import os
 import threading
 import time
 
+import config
 import generate
 import fetch
 import chrome
 import webserver
 
-DISPLAY_ID = 3
-REQUEST_TIME = 10
+DISPLAY_ID = config.get_display_id()
+REQUEST_TIME = config.get_request_time()
 
 
 def main() -> None:
