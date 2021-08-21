@@ -7,8 +7,8 @@ import fetch
 import chrome
 import webserver
 
-display_id = 3
-request_time = 10
+DISPLAY_ID = 3
+REQUEST_TIME = 10
 
 
 def main() -> None:
@@ -17,7 +17,7 @@ def main() -> None:
         chrome.open_file('loader.html')
 
         # Fetches the API
-        fetch.current_display_posts_api(display_id)
+        fetch.current_display_posts_api(DISPLAY_ID)
 
         # Generates the index.html after complete fetching
         generate.index('local_data.json')
@@ -32,12 +32,12 @@ def main() -> None:
 
     # Keeps checking for API updates, re-generating the local_data.json
     while True:
-        if fetch.current_display_posts_api(display_id):
+        if fetch.current_display_posts_api(DISPLAY_ID):
             generate.index('local_data.json')
-            time.sleep(request_time)
+            time.sleep(REQUEST_TIME)
         else:
             print('no new data found')
-            time.sleep(request_time)
+            time.sleep(REQUEST_TIME)
 
 
 # Start the local server to serve the Javascript inside index.html so it can fetch the local_data.json file
