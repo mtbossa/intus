@@ -1,10 +1,20 @@
+"""
+Responsible for creating and
+managing the local webserver
+"""
 import os
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
 class Handler(BaseHTTPRequestHandler):
+    """
+    Handles the requests from Javascript
+    """
     def do_OPTIONS(self):
+        """
+        Handle OPTIONS request
+        """
         self.send_response(200, "ok")
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET')
@@ -12,6 +22,9 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        """
+        Handle GET request
+        """
         last_modified_date = os.path.getmtime('local_data.json')
         last_modified_string = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_modified_date))
 
@@ -41,6 +54,9 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def run_server() -> None:
+    """
+    Run the server
+    """
     PORT = 8000
     server_address = ('localhost', PORT)
     server = HTTPServer(server_address, Handler)

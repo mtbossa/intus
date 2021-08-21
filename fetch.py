@@ -1,18 +1,27 @@
+"""
+Contains functions for fetching the API
+and download the medias
+"""
+
 import os
 
-import requests
 import json
+import requests
 
 import config
 
 
 def current_display_posts_api(display_id: int) -> bool:
+    """
+    Check the API of the correspondent display
+    for posts updates
+    """
     print('fetching data')
     api_url = config.get_api_url() + str(display_id)
 
-    if not (os.path.isfile('etag.json')):
+    if not os.path.isfile('etag.json'):
         etag = '""'
-        generate_etag_json(etag)
+        _generate_etag_json(etag)
 
     with open('etag.json', 'r') as f:
         etag_json = json.loads(f.read())
@@ -26,18 +35,22 @@ def current_display_posts_api(display_id: int) -> bool:
     if api_response.status_code == 200:
         print('new data found')
 
-        generate_etag_json(api_response.headers['ETag'])
+        _generate_etag_json(api_response.headers['ETag'])
 
         content = json.loads(api_response.content)
 
-        generate_local_json(content)
+        _generate_local_json(content)
 
         return True
-    else:
-        return False
+
+    return False
 
 
-def generate_etag_json(etag: str) -> None:
+def _generate_etag_json(etag: str) -> None:
+    """
+    Generate etag.json file which
+    holds the last response ETag
+    """
     etag_dict = {
         'etag': etag
     }
@@ -47,10 +60,14 @@ def generate_etag_json(etag: str) -> None:
         f.write(json_string)
 
 
-def generate_local_json(content: dict) -> None:
+def _generate_local_json(content: dict) -> None:
+    """
+    Generate local_data.json which
+    holds the local data info for Javascript usage
+    """
     posts_dict = []
     for post in content['posts']:
-        complete_path = download_media(post['media'])
+        complete_path = _download_media(post['media'])
         posts_dict.append({
             'post_id': post['id'],
             'media_name': post['media']['name'],
@@ -67,8 +84,12 @@ def generate_local_json(content: dict) -> None:
         f.write(local_json_posts)
 
 
-def download_media(media: dict) -> str:
-    if not (os.path.isdir('medias')):
+def _download_media(media: dict) -> str:
+    """
+    Download the media if not already
+    downloaded
+    """
+    if not os.path.isdir('medias'):
         os.mkdir('medias')
 
     path = media['path']
@@ -82,9 +103,9 @@ def download_media(media: dict) -> str:
     complete_path = 'medias/' + file_name
 
     # Only downloads the file if it's not already downloaded
-    if not (os.path.isfile(complete_path)):
+    if not os.path.isfile(complete_path):
         media_url = 'https://intus-medias-paineis.s3.amazonaws.com/' + path
-        print('downloading media')
+        print('downloading media: ' + file_name)
         media_response = requests.get(media_url)
 
         with open(complete_path, 'wb') as f:

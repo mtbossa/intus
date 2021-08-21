@@ -1,11 +1,19 @@
+"""
+Responsible for generating
+the index.html page
+"""
+
 import json
 
 from jinja2 import Environment, FileSystemLoader
 
 
-def index(local_data: str) -> None:
-
-    with open(local_data, 'r') as f:
+def index() -> None:
+    """
+    Generate index.html page
+    using Jinja2 template
+    """
+    with open('local_data.json', 'r') as f:
         posts = json.loads(f.read())
 
     file_loader = FileSystemLoader('templates')

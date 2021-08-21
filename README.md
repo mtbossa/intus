@@ -1,0 +1,1 @@
+Change the .config.json file for setting the display options.

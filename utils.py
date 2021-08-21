@@ -1,16 +1,28 @@
-import json
-import time
+"""
+Generic functions
+"""
+
+import pathlib
+import platform
 
 
-def get_total_duration(local_data):
-    with open(local_data, 'r') as f:
-        posts = json.loads(f.read())
+def get_command(file_name: str) -> str:
+    """
+    Return the command based
+    on the OS and file name
+    """
+    INDEX_FILE_PATH = _get_index_file_path(file_name)
 
-    total_duration = 0
+    if platform.system() == 'Windows':
+        return 'chrome "' + INDEX_FILE_PATH + '" /incognito --start-fullscreen --disable-session-crashed-bubble ' \
+                                             '--disable-infobars'
 
-    for post in posts:
-        total_duration += post['media_duration']
-
-    return total_duration
+    return 'chromium-browser ' + INDEX_FILE_PATH + ' --incognito --start-fullscreen --disable-crash-reporter'
 
 
+def _get_index_file_path(file_name: str) -> str:
+    """
+    Return the index.html file
+    path
+    """
+    return str(pathlib.Path(file_name).absolute())

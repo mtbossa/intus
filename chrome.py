@@ -1,20 +1,24 @@
-import time
-from datetime import datetime
+"""
+Functions related to the browser (Chrome)
+"""
 import os
-import pathlib
+
+import utils
 
 
 def open_file(file_name: str) -> None:
-    current_script_path = str(pathlib.Path(__file__).parent.resolve())
-
-    complete_index_path = '"' + current_script_path + '\\' + file_name + '"'
-
-    command = 'chrome ' + complete_index_path + ' /incognito --start-fullscreen --disable-session-crashed-bubble ' \
-                                                '--disable-infobars'
+    """
+    Issue the command for opening
+    the browser with designated file
+    """
+    command = utils.get_command(file_name)
 
     os.popen(command)
 
 
 def close() -> None:
+    """
+    Issue the command for
+    closing the browser
+    """
     os.system("TASKKILL /F /IM chrome.exe")
-

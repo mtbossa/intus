@@ -1,3 +1,8 @@
+"""
+The main workflow of the
+program
+"""
+
 import os
 import threading
 import time
@@ -13,15 +18,18 @@ REQUEST_TIME = config.get_request_time()
 
 
 def main() -> None:
-    # Opens the loader if first time opening the Raspberry
-    if not (os.path.isfile('local_data.json')):
+    """
+    Runs the main logic of the program
+    """
+    # Opens loader.html if first time opening the Raspberry
+    if not os.path.isfile('local_data.json'):
         chrome.open_file('loader.html')
 
         # Fetches the API
         fetch.current_display_posts_api(DISPLAY_ID)
 
         # Generates the index.html after complete fetching
-        generate.index('local_data.json')
+        generate.index()
 
         # Closes Chrome, which current is showing the loader.html
         chrome.close()
@@ -31,17 +39,20 @@ def main() -> None:
     else:
         chrome.open_file('index.html')
 
+    # Wait the REQUEST_TIME to request updates
+    time.sleep(REQUEST_TIME)
+
     # Keeps checking for API updates, re-generating the local_data.json
     while True:
         if fetch.current_display_posts_api(DISPLAY_ID):
-            generate.index('local_data.json')
-            time.sleep(REQUEST_TIME)
+            print('new data found!')
         else:
-            print('no new data found')
-            time.sleep(REQUEST_TIME)
+            print('no updates')
+
+        time.sleep(REQUEST_TIME)
 
 
-# Start the local server to serve the Javascript inside index.html so it can fetch the local_data.json file
+# Start the local server index.html can fetch the local_data.json file
 threading.Thread(target=webserver.run_server).start()
 
 # Starts the main code
