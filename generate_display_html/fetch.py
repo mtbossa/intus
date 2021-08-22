@@ -91,9 +91,6 @@ def _download_media(media: dict) -> str:
     Download the media if not already
     downloaded.
     """
-    if not os.path.isdir('../resources/medias'):
-        os.mkdir('../resources/medias')
-
     media_url_path = media['path']
 
     name = media['name']

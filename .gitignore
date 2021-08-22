@@ -1,6 +1,4 @@
-resources/medias/
 resources/index.html
-data/*
 __pycache__/
 .idea/
 venv/
