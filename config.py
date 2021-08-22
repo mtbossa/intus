@@ -11,7 +11,7 @@ def _get_config_json() -> dict:
     Loads the config.json file and
     returns its content as Python Object.
     """
-    with open('.config.json', 'r') as f:
+    with open('config/.config.json', 'r') as f:
         return json.loads(f.read())
 
 
