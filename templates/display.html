@@ -51,7 +51,7 @@
         window.addEventListener('load', (event) => {            
 
             let posts = {{ posts|safe }};
-
+            console.log('alteracao para ver se ja abre updated: ', posts)
             let currentAmountOfPosts = posts.length;
             let firstTime = true;
             let currentMediaIndex = 0;
