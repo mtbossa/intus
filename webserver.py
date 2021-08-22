@@ -1,6 +1,6 @@
 """
 Responsible for creating and
-managing the local webserver.
+managing the local server.
 """
 import os
 import time
