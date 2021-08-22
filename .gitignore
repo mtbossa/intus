@@ -1,9 +1,6 @@
 resources/medias/
 resources/index.html
 data/*
-*.json
-!.config.example.json
-!.config.json
 __pycache__/
 .idea/
 venv/
