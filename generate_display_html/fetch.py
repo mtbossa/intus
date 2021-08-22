@@ -6,6 +6,8 @@ and download the medias.
 import os
 
 import json
+from pathlib import Path
+
 import requests
 
 import config
@@ -19,11 +21,11 @@ def current_display_posts_api(display_id: int) -> bool:
     print('fetching data')
     api_url = config.get_api_url() + str(display_id)
 
-    if not os.path.isfile('etag.json'):
+    if not os.path.isfile('../data/etag.json'):
         etag = '""'
         _generate_etag_json(etag)
 
-    with open('etag.json', 'r') as f:
+    with open('../data/etag.json', 'r') as f:
         etag_json = json.loads(f.read())
 
     last_etag = etag_json['etag']
@@ -56,7 +58,7 @@ def _generate_etag_json(etag: str) -> None:
     }
     json_string = json.dumps(etag_dict)
 
-    with open('etag.json', 'w') as f:
+    with open('../data/etag.json', 'w') as f:
         f.write(json_string)
 
 
@@ -80,7 +82,7 @@ def _generate_local_json(content: dict) -> None:
 
     local_json_posts = json.dumps(posts_dict, indent=2)
 
-    with open('local_data.json', 'w') as f:
+    with open('../data/local_data.json', 'w') as f:
         f.write(local_json_posts)
 
 
@@ -89,10 +91,10 @@ def _download_media(media: dict) -> str:
     Download the media if not already
     downloaded.
     """
-    if not os.path.isdir('medias'):
-        os.mkdir('medias')
+    if not os.path.isdir('../resources/medias'):
+        os.mkdir('../resources/medias')
 
-    path = media['path']
+    media_url_path = media['path']
 
     name = media['name']
 
@@ -100,15 +102,23 @@ def _download_media(media: dict) -> str:
 
     file_name = name.replace(' ', '-') + '.' + extension
 
-    complete_path = 'medias/' + file_name
+    path = '../resources/medias/' + file_name
 
     # Only downloads the file if it's not already downloaded
-    if not os.path.isfile(complete_path):
-        media_url = 'https://intus-medias-paineis.s3.amazonaws.com/' + path
+    if not os.path.isfile(path):
+        media_url = 'https://intus-medias-paineis.s3.amazonaws.com/' + media_url_path
         print('downloading media: ' + file_name)
         media_response = requests.get(media_url)
 
-        with open(complete_path, 'wb') as f:
+        with open(path, 'wb') as f:
             f.write(media_response.content)
+            complete_path = str(Path(f.name))
+
+            print(complete_path)
+
+    else:
+        complete_path = str(Path(path))
+        print(complete_path)
 
     return complete_path
+

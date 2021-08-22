@@ -19,7 +19,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """Handle GET request."""
-        last_modified_date = os.path.getmtime('local_data.json')
+        last_modified_date = os.path.getmtime('../data/local_data.json')
         last_modified_string = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_modified_date))
 
         request_last_modified_string = str(self.headers.get('If-Modified-Since'))
@@ -30,7 +30,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Methods', 'GET')
             self.send_header('Content-Type', 'application/json')
 
-            with open('local_data.json', 'r') as f:
+            with open('../data/local_data.json', 'r') as f:
                 posts = f.read()
 
             response = posts.encode()

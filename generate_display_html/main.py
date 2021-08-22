@@ -20,8 +20,8 @@ REQUEST_TIME = config.get_request_time()
 def main() -> None:
     """Runs the main logic of the program."""
     # Opens loader.html if first time opening the Raspberry
-    if not os.path.isfile('local_data.json'):
-        chrome.open_file('loader.html')
+    if not os.path.isfile('../data/local_data.json'):
+        chrome.open_file('../resources/loader.html')
 
         # Fetches the API
         fetch.current_display_posts_api(DISPLAY_ID)
@@ -33,9 +33,9 @@ def main() -> None:
         chrome.close()
 
         # Opens Chrome with the newly created index.html
-        chrome.open_file('index.html')
+        chrome.open_file('../resources/index.html')
     else:
-        chrome.open_file('index.html')
+        chrome.open_file('../resources/index.html')
 
     # Wait the REQUEST_TIME to request updates
     time.sleep(REQUEST_TIME)
@@ -50,8 +50,9 @@ def main() -> None:
         time.sleep(REQUEST_TIME)
 
 
-# Start the local server index.html can fetch the local_data.json file
-threading.Thread(target=webserver.run_server).start()
+if __name__ == '__main__':
+    # Start the local server index.html can fetch the local_data.json file
+    threading.Thread(target=webserver.run_server).start()
 
-# Starts the main code
-main()
+    # Starts the main code
+    main()

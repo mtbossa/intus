@@ -13,7 +13,7 @@ def index() -> None:
     Generate index.html page
     using Jinja2 template.
     """
-    with open('local_data.json', 'r') as f:
+    with open('../data/local_data.json', 'r') as f:
         posts = json.loads(f.read())
 
     file_loader = FileSystemLoader('templates')
@@ -21,5 +21,5 @@ def index() -> None:
 
     rendered = env.get_template('display.html').render(posts=posts)
 
-    with open('index.html', 'w') as f:
+    with open('../resources/index.html', 'w') as f:
         f.write(rendered)

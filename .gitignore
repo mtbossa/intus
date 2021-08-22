@@ -1,7 +1,7 @@
 medias/
 *.json
-!config/.config.example.json
-!config/.config.json
+!.config.example.json
+!.config.json
 index.html
 __pycache__/
 .idea/

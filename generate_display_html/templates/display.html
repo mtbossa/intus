@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt_BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="js/script.js" defer></script>
+
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+                overflow: hidden;
+            }
+
+            body {
+                display: flex;
+            }
+
+            #slider img, video {
+                visibility: hidden;
+                position: absolute;
+                width: 100vw;
+                height: 100vh;
+            }
+
+            #slider img.selected, video.selected {
+                visibility: visible;
+                position: absolute;
+            }
+
+        </style>
+
+    </head>
+    <body>
+
+        <!--suppress SpellCheckingInspection -->
+        <div id="slider">
+            {% for post in posts %}
+                {% if post.media_type == 'image' %}
+                    <img id="{{ post.post_id }}" src="{{ post.local_path }}" alt="{{ post.media_name }}">
+                {% else %}
+                    <video id="{{ post.post_id }}" width="1920" height="1080" muted>
+                        <source src="{{ post.local_path }}" type="video/mp4">
+                    </video>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    </body>
+
+    <script>
+        let posts = {{ posts|safe }};
+    </script>
+
+</html>
