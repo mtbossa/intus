@@ -1,5 +1,4 @@
 #! /bin/bash
-
 cd /home/pi/generate_display_html || exit
 eval 'ssh-agent'
 ssh-add bin/github/intus_github

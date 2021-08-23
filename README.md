@@ -26,3 +26,11 @@ Exec= bash /home/pi/generate_display_html/bin/startup.sh
 Terminal=true
 ```
 bash= path/to/startup.sh
+
+Download:
+```git
+git clone --single-branch --branch main https://github.com/mtbossa/generate_display_html.git
+
+login: mtbossa
+pat: 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
+```
