@@ -6,39 +6,7 @@ window.addEventListener('load', (event) => {
     let mediaElements = document.querySelectorAll("#slider img, video");
     let amountOfMedia = mediaElements.length;
 
-    function nextPost()
-    {
-        if(mediaElements[currentMediaIndex].tagName == 'IMG') {
-            mediaElements[currentMediaIndex]
-                .classList.add("selected");
 
-            let post = posts[currentMediaIndex];
-
-            let duration = post.media_duration;
-
-            setTimeout(function() {
-                mediaElements[currentMediaIndex]
-                    .classList.remove("selected");
-
-                currentMediaIndex++;
-
-                if(currentMediaIndex >= amountOfMedia) {
-                currentMediaIndex = 0;
-                }
-
-                nextPost();
-            }, duration);
-
-        } else if(mediaElements[currentMediaIndex].tagName == 'VIDEO') {
-
-            mediaElements[currentMediaIndex]
-                .classList.add("selected");
-
-            var vid = mediaElements[currentMediaIndex];
-
-            vid.play();
-        }
-    }
 
     let checkPostsInterval = 5000;
     let lastModifiedDate = '';
