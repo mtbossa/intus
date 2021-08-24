@@ -2,5 +2,5 @@
 Encoding=UTF-8
 Name=Display autostart
 Comment=Automated process for update check and initialize the Python display
-Exec= bash /home/pi/generate_display_html/bin/startup.sh
+Exec=/home/pi/generate_display_html/bin/startup.sh
 Terminal=true
