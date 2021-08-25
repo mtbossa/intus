@@ -13,7 +13,7 @@ class Handler(BaseHTTPRequestHandler):
         """Handle OPTIONS request."""
         self.send_response(200, "ok")
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET')
+        self.send_header('Access-Control-Allow-Methods', 'GET, OPTION')
         self.send_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, If-Modified-Since")
         self.end_headers()
 
@@ -26,9 +26,6 @@ class Handler(BaseHTTPRequestHandler):
 
         if request_last_modified_string != last_modified_string:
             self.send_response(200)
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Methods', 'GET')
-            self.send_header('Content-Type', 'application/json')
 
             with open('../data/local_data.json', 'r') as f:
                 posts = f.read()
@@ -36,12 +33,14 @@ class Handler(BaseHTTPRequestHandler):
             response = posts.encode()
         else:
             self.send_response(302, 'Not Modified')
-            self.send_header('Last-Modified', str(last_modified_date))
-            self.end_headers()
 
             response = bytes('not modified', 'utf-8')
 
-        self.send_header('Last-Modified', str(last_modified_date))
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, OPTION')
+        self.send_header('Content-Type', 'application/json')
+        self.send_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, If-Modified-Since")
+        self.send_header('Last-Modified', last_modified_string)
         self.end_headers()
 
         self.wfile.write(response)

@@ -34,11 +34,12 @@ def main() -> None:
 
         # Opens Chrome with the newly created index.html
         chrome.open_file('../resources/index.html')
+
+        # Wait the REQUEST_TIME to request updates
+        time.sleep(REQUEST_TIME)
     else:
         chrome.open_file('../resources/index.html')
 
-    # Wait the REQUEST_TIME to request updates
-    time.sleep(REQUEST_TIME)
 
     # Keeps checking for API updates, re-generating the local_data.json
     while True:

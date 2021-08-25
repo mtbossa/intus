@@ -1,5 +1,5 @@
 {
   "display_id": 3,
-  "request_time": 15,
+  "request_time": 5,
   "api_url": "http://192.168.0.102/api/fetch-display-posts/"
 }
