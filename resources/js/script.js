@@ -6,6 +6,20 @@ window.addEventListener('load', (event) => {
     let amountOfMedia = mediaElements.length;
 
     let deletedPosts = [];
+    let lastModifiedDate = '';
+
+    // Code running
+    const videos = document.querySelectorAll('video');
+
+    if(videos.length > 0) {
+        videos.forEach(function(video) {
+            addEventToVideo(video);
+        });
+
+        nextPost();
+    } else {
+        nextPost();
+    }
 
     function nextPost()    
     {
@@ -21,15 +35,19 @@ window.addEventListener('load', (event) => {
 
             setTimeout(() => {
                 mediaElements[currentMediaIndex]
-                    .classList.remove("selected"); 
-                console.log('inside setTimout after removing class selected');
+                    .classList.remove("selected");                 
                 
-                removeDeletedPost(mediaElements[currentMediaIndex]);
+                if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
+                    mediaElements[currentMediaIndex].remove();
+                    deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
+
+                    posts.splice(currentMediaIndex, 1);
+                }
 
                 currentMediaIndex++;
 
                 if(currentMediaIndex >= amountOfMedia) {
-                currentMediaIndex = 0;
+                    currentMediaIndex = 0;
                 }
 
                 nextPost();
@@ -48,8 +66,6 @@ window.addEventListener('load', (event) => {
 
         checkPostsUpdate();           
     }
-
-    let lastModifiedDate = '';
 
     function checkPostsUpdate()
     {
@@ -81,11 +97,12 @@ window.addEventListener('load', (event) => {
                     createAddedPosts(responsePosts);
                     mediaElements = document.querySelectorAll("#slider img, video");
                     amountOfMedia = mediaElements.length;
+
+                    posts = responsePosts;
                 } else if(responsePosts.length < currentAmountOfPosts) {                    
                     appendDeletedPosts(responsePosts);
                 }
 
-                posts = responsePosts;
                 currentAmountOfPosts = responsePosts.length;                
             })
             .catch(error => {
@@ -115,21 +132,20 @@ window.addEventListener('load', (event) => {
 
     }
 
-    function removeDeletedPost(mediaElement)
-    {
-        if(deletedPosts.includes(mediaElement)) {
-            console.log('deletedPosts', deletedPosts);
-            console.log('include: ', deletedPosts.includes(mediaElement));
-            mediaElement.remove();
-            const index = deletedPosts.indexOf(mediaElement)
-            if (index > -1) {
-                deletedPosts.splice(index, 1);
-                mediaElements = document.querySelectorAll("#slider img, video");
-                amountOfMedia = mediaElements.length;
-            }
-            console.log(deletedPosts);
+    function spliceDeletedPosts(mediaElement, oldDeletedPosts)
+    {    
+        const index = deletedPosts.indexOf(mediaElement);
+
+        if (index > -1) {
+            oldDeletedPosts.splice(index, 1);
+            mediaElements = document.querySelectorAll("#slider img, video");
+            amountOfMedia = mediaElements.length;
+            
+            return oldDeletedPosts;
         }
     }
+
+    
 
     function createAddedPosts(responsePosts)
     {
@@ -167,13 +183,20 @@ window.addEventListener('load', (event) => {
         });
     }
 
+    
+
     function addEventToVideo(video)
     {
         video.addEventListener('ended', function(e) {
             mediaElements[currentMediaIndex]
                 .classList.remove("selected");
             
-            removeDeletedPost(mediaElements[currentMediaIndex]);
+            if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
+                mediaElements[currentMediaIndex].remove();
+                deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
+
+                posts.splice(currentMediaIndex, 1);
+            }
 
             currentMediaIndex++;
 
@@ -184,16 +207,4 @@ window.addEventListener('load', (event) => {
             nextPost();
         });
     }
-
-    const videos = document.querySelectorAll('video');
-    if(videos.length > 0) {
-        videos.forEach(function(video) {
-            addEventToVideo(video);
-        });
-
-        nextPost();
-    } else {
-        nextPost();
-    }
-
 });
