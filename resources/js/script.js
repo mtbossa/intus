@@ -23,48 +23,71 @@ window.addEventListener('load', (event) => {
 
     function nextPost()    
     {
-        console.log('deletedPosts: ', deletedPosts);
-        if(mediaElements[currentMediaIndex].tagName == 'IMG') {
-            mediaElements[currentMediaIndex]
-                .classList.add("selected");
-            console.log('selected post: ', mediaElements[currentMediaIndex]);
+        let post = posts[currentMediaIndex];        
+        let date_now = new Date();
+        let seconds_now_since_epoch = Math.trunc(date_now.getTime() / 1000);
 
-            let post = posts[currentMediaIndex];
+        console.log(post);
+        console.log(post.start_date);
+        console.log(post.end_date);
+        // COMENTAR
+        if(post.start_date > seconds_now_since_epoch || post.end_date < seconds_now_since_epoch) {
+            currentMediaIndex++;
 
-            let duration = post.media_duration;
+            if(currentMediaIndex >= amountOfMedia) {
+                currentMediaIndex = 0;
+            }
 
-            setTimeout(() => {
-                mediaElements[currentMediaIndex]
-                    .classList.remove("selected");                 
-                
-                if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
-                    mediaElements[currentMediaIndex].remove();
-                    deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
+            checkPostsUpdate(); 
 
-                    posts.splice(currentMediaIndex, 1);
-                }
+            nextPost();
+        } else {
+            switch(mediaElements[currentMediaIndex].tagName) {
+                case 'IMG':
+                    let duration = post.media_duration;
 
-                currentMediaIndex++;
+                    mediaElements[currentMediaIndex]
+                        .classList.add("selected");
 
-                if(currentMediaIndex >= amountOfMedia) {
-                    currentMediaIndex = 0;
-                }
+                    console.log('selected post: ', mediaElements[currentMediaIndex]);
+ 
+                    setTimeout(() => {
+                        mediaElements[currentMediaIndex]
+                            .classList.remove("selected");                 
+                        
+                        if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
+                            mediaElements[currentMediaIndex].remove();
+                            deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
+        
+                            posts.splice(currentMediaIndex, 1);
+                        }
+        
+                        currentMediaIndex++;
+        
+                        if(currentMediaIndex >= amountOfMedia) {
+                            currentMediaIndex = 0;
+                        }
+        
+                        nextPost();
+                    }, duration);
 
-                nextPost();
-            }, duration);
+                    break;
 
-        } else if(mediaElements[currentMediaIndex].tagName == 'VIDEO') {
-            console.log(mediaElements[currentMediaIndex]);
+                case 'VIDEO':
+                    console.log(mediaElements[currentMediaIndex]);
+    
+                    mediaElements[currentMediaIndex]
+                        .classList.add("selected");
+        
+                    var vid = mediaElements[currentMediaIndex];
+        
+                    vid.play();
 
-            mediaElements[currentMediaIndex]
-                .classList.add("selected");
+                    break;
+            }
 
-            var vid = mediaElements[currentMediaIndex];
-
-            vid.play();
-        }
-
-        checkPostsUpdate();           
+            checkPostsUpdate();      
+        }            
     }
 
     function checkPostsUpdate()
@@ -92,7 +115,7 @@ window.addEventListener('load', (event) => {
             })
             .then(data => {
                 let responsePosts = data;
-
+                
                 if(responsePosts.length > currentAmountOfPosts) {
                     createAddedPosts(responsePosts);
                     mediaElements = document.querySelectorAll("#slider img, video");

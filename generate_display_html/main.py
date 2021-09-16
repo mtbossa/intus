@@ -40,7 +40,6 @@ def main() -> None:
     else:
         chrome.open_file('../resources/index.html')
 
-
     # Keeps checking for API updates, re-generating the local_data.json
     while True:
         if fetch.current_display_posts_api(DISPLAY_ID):

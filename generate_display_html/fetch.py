@@ -11,6 +11,7 @@ from pathlib import Path
 import requests
 
 import config
+import utils
 
 
 def current_display_posts_api(display_id: int) -> bool:
@@ -77,6 +78,8 @@ def _generate_local_json(content: dict) -> None:
             'media_duration': post['duration'],
             'media_type': post['media']['type'],
             'media_extension': post['media']['extension'],
+            'start_date': utils.transform_date_to_epoch(post['start_date']),
+            'end_date': utils.transform_date_to_epoch(post['end_date']),
             'local_path': complete_path
         })
 

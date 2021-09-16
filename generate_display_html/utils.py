@@ -1,5 +1,5 @@
 """ Generic functions"""
-
+import datetime
 import pathlib
 import platform
 
@@ -32,3 +32,11 @@ def get_close_command() -> str:
         return 'TASKKILL /F /IM chrome.exe'
 
     return 'killall chromium-browse'
+
+
+def transform_date_to_epoch(date_string: str) -> int:
+    """Return the given date string in epoch seconds (int)"""
+    date_time = datetime.datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
+    seconds_since_epoch = int(date_time.timestamp())
+
+    return seconds_since_epoch
