@@ -4,6 +4,7 @@ window.addEventListener('load', (event) => {
     let currentMediaIndex = 0;
     let mediaElements = document.querySelectorAll("#slider img, video");
     let amountOfMedia = mediaElements.length;
+    let loop = 0;
 
     let deletedPosts = [];
     let lastModifiedDate = '';
@@ -28,26 +29,29 @@ window.addEventListener('load', (event) => {
 
         let date_now        = new Date();   
         let post_start_date = new Date(post.start_date);
-        let post_end_date   = new Date(post.end_date);
-        
+        let post_end_date   = new Date(post.end_date);        
 
         let date_and_times = getDateAndTimes(post_start_date, post_end_date, date_now);              
 
         if(!shouldShow(date_and_times)) {
-
-
             console.log('oi dentro');
             currentMediaIndex++;
-
+            console.log('currentMediaIndex: ', currentMediaIndex);
             if(currentMediaIndex >= amountOfMedia) {
+                console.log('currentMediaIndex dentro do if: ', currentMediaIndex);
                 currentMediaIndex = 0;
-            }
-
-            checkPostsUpdate();
-
-            nextPost();
-
-            
+                console.log('currentMediaIndex depois de zerar: ', currentMediaIndex);
+                loop++;
+                console.log('loop: ', loop);
+                if(loop > 1) {
+                    console.log('inside if');
+                    showNoContent();
+                } else {
+                    nextPost();
+                }                
+            } else {
+                nextPost();
+            }            
         } else {
             switch(mediaElements[currentMediaIndex].tagName) {
                 case 'IMG':
@@ -137,6 +141,16 @@ window.addEventListener('load', (event) => {
             .catch(error => {
                 console.error(error);
             })
+    }
+
+    function showNoContent()
+    {
+        console.log('showNOContent');
+        const loader = document.getElementById('loader');
+
+        loader.classList.add('selected');
+
+
     }
 
     function appendDeletedPosts(responsePosts)
@@ -236,55 +250,57 @@ window.addEventListener('load', (event) => {
             nextPost();
         });
     }
-});
 
-// Functions Declarations
-function getDateAndTimes(post_start_date, post_end_date, date_now)
-{
+    // Functions Declarations
+    function getDateAndTimes(post_start_date, post_end_date, date_now)
+    {
 
-    let object_with_dates;
-    
-    object_with_dates = {
-        now: {
-            date_sum: getSumDate(date_now),
-            hour: date_now.getHours(),
-            minute: date_now.getMinutes(),
-        },
-        start: {
-            date_sum: getSumDate(post_start_date),
-            hour: post_start_date.getHours(),
-            minute: post_start_date.getMinutes(),
-        },
-        end: {
-            date_sum: getSumDate(post_end_date),
-            hour: post_start_date.getHours(),
-            minute: post_end_date.getMinutes(),
-        },
-    };
+        let object_with_dates;
+        
+        object_with_dates = {
+            now: {
+                date_sum: getSumDate(date_now),
+                hour: date_now.getHours(),
+                minute: date_now.getMinutes(),
+            },
+            start: {
+                date_sum: getSumDate(post_start_date),
+                hour: post_start_date.getHours(),
+                minute: post_start_date.getMinutes(),
+            },
+            end: {
+                date_sum: getSumDate(post_end_date),
+                hour: post_start_date.getHours(),
+                minute: post_end_date.getMinutes(),
+            },
+        };
 
 
-    return object_with_dates;
-}
-
-function shouldShow(date_and_times)
-{
-    if(betweenStartEnd(date_and_times.now.date_sum, date_and_times.start.date_sum, date_and_times.end.date_sum)) {
-        if(betweenStartEnd(date_and_times.now.hour, date_and_times.start.hour, date_and_times.end.hour)) {     
-            if(betweenStartEnd(date_and_times.now.minute, date_and_times.start.minute, date_and_times.end.minute)) {
-                return true;                
-            }    
-        }
+        return object_with_dates;
     }
 
-    return false;
-}
+    function shouldShow(date_and_times)
+    {
+        if(betweenStartEnd(date_and_times.now.date_sum, date_and_times.start.date_sum, date_and_times.end.date_sum)) {
+            if(betweenStartEnd(date_and_times.now.hour, date_and_times.start.hour, date_and_times.end.hour)) {     
+                if(betweenStartEnd(date_and_times.now.minute, date_and_times.start.minute, date_and_times.end.minute)) {
+                    return true;                
+                }    
+            }
+        }
 
-function getSumDate(date_object)
-{
-    return date_object.getFullYear() + date_object.getMonth() + date_object.getDay();
-}
+        return false;
+    }
 
-function betweenStartEnd(now_value, start_value, end_value)
-{
-    return start_value <= now_value && end_value >= now_value;
-}
+    function getSumDate(date_object)
+    {
+        return date_object.getFullYear() + date_object.getMonth() + date_object.getDay();
+    }
+
+    function betweenStartEnd(now_value, start_value, end_value)
+    {
+        return start_value <= now_value && end_value >= now_value;
+    }
+
+});
+
