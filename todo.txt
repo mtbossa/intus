@@ -1,0 +1,5 @@
+api só envia os posts que ainda não passaram da data de fim. quando requisitada, verifica
+somente os posts que estão dentro da data.
+
+excluir as mídias que não estão mais no local_data.json
+excluir as tags e do array de posts no javascript depois de passar da hora de fim.

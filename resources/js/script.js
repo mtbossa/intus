@@ -8,7 +8,7 @@ window.addEventListener('load', (event) => {
     let deletedPosts = [];
     let lastModifiedDate = '';
 
-    // Code running
+    // Code starts running here
     const videos = document.querySelectorAll('video');
 
     if(videos.length > 0) {
@@ -21,26 +21,33 @@ window.addEventListener('load', (event) => {
         nextPost();
     }
 
+    // Function Declarations
     function nextPost()    
     {
-        let post = posts[currentMediaIndex];        
-        let date_now = new Date();
-        let seconds_now_since_epoch = Math.trunc(date_now.getTime() / 1000);
+        let post = posts[currentMediaIndex];
 
-        console.log(post);
-        console.log(post.start_date);
-        console.log(post.end_date);
-        // COMENTAR
-        if(post.start_date > seconds_now_since_epoch || post.end_date < seconds_now_since_epoch) {
+        let date_now        = new Date();   
+        let post_start_date = new Date(post.start_date);
+        let post_end_date   = new Date(post.end_date);
+        
+
+        let date_and_times = getDateAndTimes(post_start_date, post_end_date, date_now);              
+
+        if(!shouldShow(date_and_times)) {
+
+
+            console.log('oi dentro');
             currentMediaIndex++;
 
             if(currentMediaIndex >= amountOfMedia) {
                 currentMediaIndex = 0;
             }
 
-            checkPostsUpdate(); 
+            checkPostsUpdate();
 
             nextPost();
+
+            
         } else {
             switch(mediaElements[currentMediaIndex].tagName) {
                 case 'IMG':
@@ -84,10 +91,9 @@ window.addEventListener('load', (event) => {
                     vid.play();
 
                     break;
-            }
-
-            checkPostsUpdate();      
-        }            
+            } 
+            checkPostsUpdate();               
+        }  
     }
 
     function checkPostsUpdate()
@@ -231,3 +237,54 @@ window.addEventListener('load', (event) => {
         });
     }
 });
+
+// Functions Declarations
+function getDateAndTimes(post_start_date, post_end_date, date_now)
+{
+
+    let object_with_dates;
+    
+    object_with_dates = {
+        now: {
+            date_sum: getSumDate(date_now),
+            hour: date_now.getHours(),
+            minute: date_now.getMinutes(),
+        },
+        start: {
+            date_sum: getSumDate(post_start_date),
+            hour: post_start_date.getHours(),
+            minute: post_start_date.getMinutes(),
+        },
+        end: {
+            date_sum: getSumDate(post_end_date),
+            hour: post_start_date.getHours(),
+            minute: post_end_date.getMinutes(),
+        },
+    };
+
+
+    return object_with_dates;
+}
+
+function shouldShow(date_and_times)
+{
+    if(betweenStartEnd(date_and_times.now.date_sum, date_and_times.start.date_sum, date_and_times.end.date_sum)) {
+        if(betweenStartEnd(date_and_times.now.hour, date_and_times.start.hour, date_and_times.end.hour)) {     
+            if(betweenStartEnd(date_and_times.now.minute, date_and_times.start.minute, date_and_times.end.minute)) {
+                return true;                
+            }    
+        }
+    }
+
+    return false;
+}
+
+function getSumDate(date_object)
+{
+    return date_object.getFullYear() + date_object.getMonth() + date_object.getDay();
+}
+
+function betweenStartEnd(now_value, start_value, end_value)
+{
+    return start_value <= now_value && end_value >= now_value;
+}

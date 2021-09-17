@@ -35,8 +35,10 @@ def get_close_command() -> str:
 
 
 def transform_date_to_epoch(date_string: str) -> int:
-    """Return the given date string in epoch seconds (int)"""
+    """Return the given date string in epoch (int)"""
     date_time = datetime.datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
-    seconds_since_epoch = int(date_time.timestamp())
+    # Transform to int, so won't have decimals, and multiply by 1000 to get milliseconds
+    # Needed for javascript Date object creation
+    seconds_since_epoch = int(date_time.timestamp() * 1000)
 
     return seconds_since_epoch
