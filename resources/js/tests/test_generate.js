@@ -1,27 +1,72 @@
-window.addEventListener('load', (event) => {
+let = document.getElementById('loader');
 
-    let = document.getElementById('loader');
+let posts = [];
 
-    let currentAmountOfPosts = posts.length;
-    let currentMediaIndex = 0;
-    let mediaElements = document.querySelectorAll("#slider img, video");
-    let amountOfMedia = mediaElements.length;
-    let loop = 0;
+let lastModifiedDate = '';
 
-    let deletedPosts = [];
-    let lastModifiedDate = '';
+let currentAmountOfPosts = 0;
 
-    // Code starts running here
-    const videos = document.querySelectorAll('video');
+let currentMediaIndex = 0;
 
-    if(videos.length > 0) {
-        videos.forEach(function(video) {
-            addEventToVideo(video);
+let mediaElements = [];
+
+let loop = 0;
+
+let amountOfMedia = mediaElements.length;
+    
+let deletedPosts = [];
+
+window.addEventListener('load', (event) => {    
+    
+
+    // Code starts here 
+    getFirstData(); 
+
+    function getFirstData()
+    {
+        let myHeaders = new Headers();
+
+        myHeaders.append('If-Modified-Since', lastModifiedDate);
+        myHeaders.append('Content-Type', 'application/json');
+
+        let myRequest = new Request('http://localhost:8000', {
+            method: 'GET',
+            headers: myHeaders,
+            mode: 'cors',
         });
 
-        nextPost();
-    } else {
-        nextPost();
+        fetch(myRequest)
+            .then(response => {
+                console.log('response status getFirstData: ', response.status);
+                lastModifiedDate = response.headers.get('Last-Modified');
+                console.log('lastModifiedDate getFirstData: ', lastModifiedDate);
+
+                if (response.status != 200) {                    
+                    throw new Error ('no local_data.json or error with local server');
+                }     
+
+                return response.json();
+            })
+            .then(data => {
+                let responsePosts = data;    
+
+                createAddedPosts(responsePosts);
+
+                mediaElements = document.querySelectorAll("#slider img, video");
+
+                amountOfMedia = mediaElements.length;
+
+                posts = responsePosts;
+
+                currentAmountOfPosts = responsePosts.length;  
+                
+                nextPost();
+            })
+            .catch(error => {
+
+                console.error(error);
+
+            })
     }
 
     // Function Declarations
@@ -52,14 +97,18 @@ window.addEventListener('load', (event) => {
                 // current posts to display.
                 // This is need so the code doesn't enter an infinte loop
                 if(loop > 1) {
+
                     loop = 0;
 
                     showNoContent();
+
                 } else {
+                    // Continue to check one more complete loop
                     nextPost();
                 }
 
             } else {
+                // Means there're other posts to check
                 nextPost();
             }            
         } else {
@@ -78,15 +127,16 @@ window.addEventListener('load', (event) => {
                     mediaElements[currentMediaIndex]
                         .classList.add("selected");
  
+                    // Waits for the duration of the media image to enter
+                    // the function
                     setTimeout(() => {
                         mediaElements[currentMediaIndex]
                             .classList.remove("selected");                 
                         
+                        // After showing the image, checks if it has been removed
+                        // and deletes it if yes.
                         if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
-                            mediaElements[currentMediaIndex].remove();
-                            deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
-        
-                            posts.splice(currentMediaIndex, 1);
+                            removePost(currentMediaIndex);
                         }
         
                         currentMediaIndex++;
@@ -94,9 +144,10 @@ window.addEventListener('load', (event) => {
                         if(currentMediaIndex >= amountOfMedia) {
                             currentMediaIndex = 0;
                         }
-        
+
                         nextPost();
-                    }, duration);
+
+                    }, duration);                   
 
                     break;
 
@@ -116,7 +167,7 @@ window.addEventListener('load', (event) => {
         }  
     }
 
-    function checkPostsUpdate()
+    function checkPostsUpdate(no_content)
     {
         let myHeaders = new Headers();
 
@@ -136,27 +187,62 @@ window.addEventListener('load', (event) => {
                 console.log('lastModifiedDate: ', lastModifiedDate);
                 if (response.status == 302) {                    
                     throw new Error ('not modified');
-                }                
+                }     
+
                 return response.json();
             })
             .then(data => {
-                let responsePosts = data;
+                let responsePosts = data;                
                 
                 if(responsePosts.length > currentAmountOfPosts) {
+
                     createAddedPosts(responsePosts);
+
                     mediaElements = document.querySelectorAll("#slider img, video");
+
                     amountOfMedia = mediaElements.length;
 
                     posts = responsePosts;
-                } else if(responsePosts.length < currentAmountOfPosts) {                    
+                } else if(responsePosts.length < currentAmountOfPosts) { 
+
                     appendDeletedPosts(responsePosts);
+
                 }
 
-                currentAmountOfPosts = responsePosts.length;                
+                currentAmountOfPosts = responsePosts.length;  
             })
             .catch(error => {
                 console.error(error);
             })
+            .finally(() => {
+                console.log('reach finally');
+                if(no_content) {
+                    showNoContent();
+                }
+            });
+    }
+
+    function showNoContent()
+    {
+        console.log('showNOContent');        
+
+        // Apply class selected only if not already selected
+        if(!loader.classList.contains('selected')) {
+            loader
+                .classList.add('selected');
+        }
+
+        // Keeps checking if should show any current posts.
+        // If not, fetches the server for updated in the JSON posts.
+        // Does it every 5 seconds.
+        setTimeout(() => {
+            if(shouldShowAnyCurrentPosts()) {
+                nextPost();
+            } else {
+                checkPostsUpdate(true);
+            }
+        }, 5000);
+
     }
 
     function shouldShowAnyCurrentPosts()
@@ -178,31 +264,6 @@ window.addEventListener('load', (event) => {
         return false;
     }
 
-    function showNoContent()
-    {
-        console.log('showNOContent');        
-
-        // Apply class selected only if not already selected
-        if(loader.classList != 'selected') {
-            loader
-                .classList.add('selected');
-        }
-
-        // Keeps checking if should show any current posts.
-        // If not, fetches the server for updated in the JSON posts.
-        // Does it every 5 seconds.
-        setTimeout(() => {
-            if(shouldShowAnyCurrentPosts()) {
-                nextPost();
-            } else {
-                checkPostsUpdate();
-
-                showNoContent();
-            }
-        }, 5000);
-
-    }
-
     function appendDeletedPosts(responsePosts)
     {
         const responsePostsIds = [];
@@ -211,6 +272,7 @@ window.addEventListener('load', (event) => {
         responsePosts.forEach(function(e) {
             responsePostsIds.push(e.post_id);
         });
+
         posts.forEach(function(e) {
             currentPostsIds.push(e.post_id);
         });
@@ -218,7 +280,9 @@ window.addEventListener('load', (event) => {
         let removedPostsIds = currentPostsIds.filter(x => !responsePostsIds.includes(x));        
 
         removedPostsIds.forEach(removedPostId => {
+
             const deleteElement = document.getElementById(removedPostId);
+
             deletedPosts.push(deleteElement);
         })
 
@@ -236,8 +300,6 @@ window.addEventListener('load', (event) => {
             return oldDeletedPosts;
         }
     }
-
-    
 
     function createAddedPosts(responsePosts)
     {
@@ -275,8 +337,6 @@ window.addEventListener('load', (event) => {
         });
     }
 
-    
-
     function addEventToVideo(video)
     {
         video.addEventListener('ended', function(e) {
@@ -284,10 +344,7 @@ window.addEventListener('load', (event) => {
                 .classList.remove("selected");
             
             if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
-                mediaElements[currentMediaIndex].remove();
-                deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
-
-                posts.splice(currentMediaIndex, 1);
+                removePost(currentMediaIndex);
             }
 
             currentMediaIndex++;
@@ -298,6 +355,14 @@ window.addEventListener('load', (event) => {
 
             nextPost();
         });
+    }
+
+    function removePost(currentMediaIndex)
+    {
+        mediaElements[currentMediaIndex].remove();
+        deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
+
+        posts.splice(currentMediaIndex, 1);
     }
 
     // Functions Declarations
