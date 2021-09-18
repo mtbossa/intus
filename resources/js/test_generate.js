@@ -20,7 +20,10 @@ window.addEventListener('load', (event) => {
     
 
     // Code starts here 
-    getFirstData(); 
+    setTimeout(() => {
+        getFirstData(); 
+    }, 10000)
+    
 
     function getFirstData()
     {
@@ -38,8 +41,7 @@ window.addEventListener('load', (event) => {
         fetch(myRequest)
             .then(response => {
                 console.log('response status getFirstData: ', response.status);
-                lastModifiedDate = response.headers.get('Last-Modified');
-                console.log('lastModifiedDate getFirstData: ', lastModifiedDate);
+                lastModifiedDate = response.headers.get('Last-Modified');                
 
                 if (response.status != 200) {                    
                     throw new Error ('no local_data.json or error with local server');
@@ -48,7 +50,12 @@ window.addEventListener('load', (event) => {
                 return response.json();
             })
             .then(data => {
-                let responsePosts = data;    
+                // Means there's not a single post for the display
+                if(data.length == 0) {
+                    throw new Error ('no posts for the current display');
+                }
+
+                let responsePosts = data;                                
 
                 createAddedPosts(responsePosts);
 
@@ -66,20 +73,15 @@ window.addEventListener('load', (event) => {
 
                 console.error(error);
 
+                showNoContent();
+
             })
     }
 
     // Function Declarations
     function nextPost()    
     {
-        if(posts.length == 0) {
-            showNoContent();
-        }
         let post = posts[currentMediaIndex];
-
-        console.log('currentMediaIndex inside nextPost: ', currentMediaIndex);
-        console.log('currentMediaIndex inside nextPost: ', currentMediaIndex);
-        console.log('posts[currentMediaIndex] nextPost: ', posts[currentMediaIndex]);
 
         let date_now        = new Date();   
         let post_start_date = new Date(post.start_date);
@@ -119,6 +121,10 @@ window.addEventListener('load', (event) => {
                 nextPost();
             }            
         } else {
+            // Need to reset the loop, otherwise it will keep couting
+            // even if there are 1 post to show but any other not
+            loop = 0;
+
             // If the loader is selected, removes it to show the post
             if(loader.classList.contains('selected')) {
                 console.log('selected');
@@ -152,9 +158,11 @@ window.addEventListener('load', (event) => {
                             currentMediaIndex = 0;
                         }
 
-                        nextPost();
+                        checkPostsUpdate(false);
 
-                    }, duration);                   
+                    }, duration);    
+                    
+                    
 
                     break;
 
@@ -169,8 +177,7 @@ window.addEventListener('load', (event) => {
                     vid.play();
 
                     break;
-            } 
-            checkPostsUpdate();               
+            }                           
         }  
     }
 
@@ -191,7 +198,7 @@ window.addEventListener('load', (event) => {
             .then(response => {
                 console.log('response status: ', response.status);
                 lastModifiedDate = response.headers.get('Last-Modified');
-                console.log('lastModifiedDate: ', lastModifiedDate);
+
                 if (response.status == 302) {                    
                     throw new Error ('not modified');
                 }     
@@ -209,21 +216,26 @@ window.addEventListener('load', (event) => {
 
                     amountOfMedia = mediaElements.length;
 
-                    posts = responsePosts;
+                    
                 } else if(responsePosts.length < currentAmountOfPosts) { 
 
                     appendDeletedPosts(responsePosts);
 
                 }
 
+                posts = responsePosts;
+
                 currentAmountOfPosts = responsePosts.length;  
             })
             .catch(error => {
+
                 console.error(error);
+                
             })
             .finally(() => {
                 console.log('reach finally');
-                if(no_content) {
+
+                if(no_content) { 
                     showNoContent();
                 } else {
                     nextPost();
@@ -245,33 +257,40 @@ window.addEventListener('load', (event) => {
         // If not, fetches the server for updated in the JSON posts.
         // Does it every 5 seconds.
         setTimeout(() => {
+            console.log('prox chamado é shouldShowAnyCurrentPost');
             if(shouldShowAnyCurrentPosts()) {
                 nextPost();
             } else {
                 checkPostsUpdate(true);
             }
+
         }, 5000);
 
     }
 
     function shouldShowAnyCurrentPosts()
-    {
-        console.log('shouldShowAnyCurrentPosts()');        
-
+    { 
+        let control = false;
         posts.forEach((post) => {
-            console.log(post);
+            console.log('post inside shouldShowAnyCurrentPosts: ', post);
+
             const date_now        = new Date();   
             const post_start_date = new Date(post.start_date);
             const post_end_date   = new Date(post.end_date);        
 
             const date_and_times = getDateAndTimes(post_start_date, post_end_date, date_now);              
 
-            if(shouldShow(date_and_times)){
-                return true;
+            console.log(date_and_times);
+
+            console.log('shouldShow: ', shouldShow(date_and_times));
+
+            if(shouldShow(date_and_times)) {
+                console.log('shouldShowAnyCurrentPosts = true');
+                control = true;
             }
         });
-
-        return false;
+        console.log('shouldShowAnyCurrentPosts control: ', control);
+        return control;
     }
 
     function appendDeletedPosts(responsePosts)
@@ -363,7 +382,7 @@ window.addEventListener('load', (event) => {
                 currentMediaIndex = 0;
             }
 
-            nextPost();
+            checkPostsUpdate(false);
         });
     }
 
@@ -394,7 +413,7 @@ window.addEventListener('load', (event) => {
             },
             end: {
                 date_sum: getSumDate(post_end_date),
-                hour: post_start_date.getHours(),
+                hour: post_end_date.getHours(),
                 minute: post_end_date.getMinutes(),
             },
         };
@@ -405,13 +424,51 @@ window.addEventListener('load', (event) => {
 
     function shouldShow(date_and_times)
     {
-        if(betweenStartEnd(date_and_times.now.date_sum, date_and_times.start.date_sum, date_and_times.end.date_sum)) {
-            if(betweenStartEnd(date_and_times.now.hour, date_and_times.start.hour, date_and_times.end.hour)) {     
-                if(betweenStartEnd(date_and_times.now.minute, date_and_times.start.minute, date_and_times.end.minute)) {
-                    return true;                
-                }    
-            }
-        }
+        console.log('inside shouldShow');
+        // Verificação 1: se a data de ínicio do posta for <= ao dia de hoje, significa que
+        // já pode ser mostrado, pela data. Caso contrário, ainda não deve
+        // ser mostrado.
+        if(date_and_times.start.date_sum <= date_and_times.now.date_sum) {
+            // Verificação 2: data de fim precisa ser >= ao dia de hoje, do
+            // contrário, já passou da data de fim e não deve ser mostrado.           
+            if(date_and_times.end.date_sum >= date_and_times.now.date_sum) {  
+                // Verificações 3: já sei que posso mostrar, pelos dias, mas
+                // preciso verificar as horas.
+                
+                if(date_and_times.start.hour <= date_and_times.now.hour
+                    && date_and_times.end.hour > date_and_times.now.hour) {
+                        // Se a hora de ínicio já passou ainda não estou na 
+                        // hora de fim, posso mostrar, pois não
+                        // preciso verificar os minutos.    
+                        return true;
+                }
+
+                // Se a hora de ínicio é a mesma da atual, preciso verificar
+                // os minutos de início e fim
+                if(date_and_times.start.hour == date_and_times.now.hour) {
+
+                    if(date_and_times.start.minute <= date_and_times.now.minute
+                        && date_and_times.end.minute > date_and_times.now.minute) {                        
+                        return true;                        
+                    }
+
+                }
+
+                // Sei que posso mostrar pela hora, pois já passou da hora
+                // de ínicio da postagem, não preciso verificar mais as horas
+                // e minutos de ínicio, somente de fim
+                if(date_and_times.start.hour < date_and_times.now.hour) {
+                    
+                    if(date_and_times.end.hour > date_and_times.now.hour
+                        && date_and_times.end.minute > date_and_times.now.minute) {
+                        // Não preciso verificar os minutos, pois sei que
+                        // não vai terminar nessa hora ainda.
+                        return true;
+                    }
+
+                }
+            } 
+        } 
 
         return false;
     }
@@ -420,11 +477,5 @@ window.addEventListener('load', (event) => {
     {
         return date_object.getFullYear() + date_object.getMonth() + date_object.getDay();
     }
-
-    function betweenStartEnd(now_value, start_value, end_value)
-    {
-        return start_value <= now_value && end_value >= now_value;
-    }
-
 });
 
