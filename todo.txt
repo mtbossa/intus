@@ -2,9 +2,5 @@ api só envia os posts que ainda não passaram da data de fim. quando requisitad
 somente os posts que estão dentro da data.
 
 excluir as mídias que não estão mais no local_data.json
-excluir as tags e do array de posts no javascript depois de passar da hora de fim.
 
-ONDE PAREI:
-preciso continuar a requisitar o server e verificar as datas dos posts após a função showNoContent().
-
-foi criada para quando não tiver nenhum post para mostrar e não entrar em um loop infinito.
+adicionar imagem quando não existe nenhum post no template.

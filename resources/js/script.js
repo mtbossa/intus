@@ -1,68 +1,88 @@
+let = document.getElementById('loader');
+
+let posts = [];
+
+let lastModifiedDate = '';
+
+let currentAmountOfPosts = 0;
+
+let currentMediaIndex = 0;
+
+let mediaElements = [];
+
+let amountOfMedia = mediaElements.length;
+
+let deletedPosts = [];
+
 window.addEventListener('load', (event) => {
 
-    let = document.getElementById('loader');
 
-    let currentAmountOfPosts = posts.length;
-    let currentMediaIndex = 0;
-    let mediaElements = document.querySelectorAll("#slider img, video");
-    let amountOfMedia = mediaElements.length;
-    let loop = 0;
+    // Code starts here
+    getFirstData();
 
-    let deletedPosts = [];
-    let lastModifiedDate = '';
+    function getFirstData()
+    {
+        let myHeaders = new Headers();
 
-    // Code starts running here
-    const videos = document.querySelectorAll('video');
+        myHeaders.append('If-Modified-Since', lastModifiedDate);
+        myHeaders.append('Content-Type', 'application/json');
 
-    if(videos.length > 0) {
-        videos.forEach(function(video) {
-            addEventToVideo(video);
+        let myRequest = new Request('http://localhost:8000', {
+            method: 'GET',
+            headers: myHeaders,
+            mode: 'cors',
         });
 
-        nextPost();
-    } else {
-        nextPost();
+        fetch(myRequest)
+            .then(response => {
+                console.log('response status getFirstData: ', response.status);
+                lastModifiedDate = response.headers.get('Last-Modified');
+
+                if (response.status != 200) {
+                    throw new Error ('no  showcase.json or error with local server');
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                // Means there's not a single post for the display
+                if(data.length == 0) {
+                    throw new Error ('no posts for the current display');
+                }
+
+                let responsePosts = data;
+
+                createAddedPosts(responsePosts);
+
+                mediaElements = document.querySelectorAll("#slider img, video");
+
+                amountOfMedia = mediaElements.length;
+
+                posts = responsePosts;
+
+                currentAmountOfPosts = responsePosts.length;
+
+                nextPost();
+            })
+            .catch(error => {
+
+                console.error(error);
+
+                showNoContent();
+
+            })
     }
 
     // Function Declarations
-    function nextPost()    
+    function nextPost()
     {
-        let post = posts[currentMediaIndex];
+        if(posts.length == 0) {
 
-        let date_now        = new Date();   
-        let post_start_date = new Date(post.start_date);
-        let post_end_date   = new Date(post.end_date);        
+            showNoContent();
 
-        let date_and_times = getDateAndTimes(post_start_date, post_end_date, date_now);              
-
-        if(!shouldShow(date_and_times)) {
-
-            currentMediaIndex++;
-
-        
-            if(currentMediaIndex >= amountOfMedia) {
-                
-                currentMediaIndex = 0;
-                
-                
-                loop++;
-
-                // If enter here, means already passed through 
-                // the whole posts array 2 times, meaning there isn't any
-                // current posts to display.
-                // This is need so the code doesn't enter an infinte loop
-                if(loop > 1) {
-                    loop = 0;
-
-                    showNoContent();
-                } else {
-                    nextPost();
-                }
-
-            } else {
-                nextPost();
-            }            
         } else {
+            let post = posts[currentMediaIndex];
+
             // If the loader is selected, removes it to show the post
             if(loader.classList.contains('selected')) {
                 console.log('selected');
@@ -77,43 +97,46 @@ window.addEventListener('load', (event) => {
 
                     mediaElements[currentMediaIndex]
                         .classList.add("selected");
- 
+
+                    // Waits for the duration of the media image to enter
+                    // the function
                     setTimeout(() => {
                         mediaElements[currentMediaIndex]
-                            .classList.remove("selected");                 
-                        
+                            .classList.remove("selected");
+
+                        // After showing the image, checks if it has been removed
+                        // and deletes it if yes.
                         if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
-                            mediaElements[currentMediaIndex].remove();
-                            deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
-        
-                            posts.splice(currentMediaIndex, 1);
+                            removePost(currentMediaIndex);
                         }
-        
+
                         currentMediaIndex++;
-        
+
                         if(currentMediaIndex >= amountOfMedia) {
                             currentMediaIndex = 0;
                         }
-        
+
                         nextPost();
+
                     }, duration);
 
                     break;
 
                 case 'VIDEO':
                     console.log(mediaElements[currentMediaIndex]);
-    
+
                     mediaElements[currentMediaIndex]
                         .classList.add("selected");
-        
+
                     var vid = mediaElements[currentMediaIndex];
-        
+
                     vid.play();
 
                     break;
-            } 
-            checkPostsUpdate();               
-        }  
+            }
+
+            checkPostsUpdate();
+        }
     }
 
     function checkPostsUpdate()
@@ -133,74 +156,65 @@ window.addEventListener('load', (event) => {
             .then(response => {
                 console.log('response status: ', response.status);
                 lastModifiedDate = response.headers.get('Last-Modified');
-                console.log('lastModifiedDate: ', lastModifiedDate);
-                if (response.status == 302) {                    
+
+                if (response.status == 302) {
                     throw new Error ('not modified');
-                }                
+                }
+
                 return response.json();
             })
             .then(data => {
+                let posts_lenght_before_fetch = posts.length;
+
                 let responsePosts = data;
-                
+
                 if(responsePosts.length > currentAmountOfPosts) {
+
                     createAddedPosts(responsePosts);
+
                     mediaElements = document.querySelectorAll("#slider img, video");
+
                     amountOfMedia = mediaElements.length;
 
-                    posts = responsePosts;
-                } else if(responsePosts.length < currentAmountOfPosts) {                    
+
+                } else if(responsePosts.length < currentAmountOfPosts) {
+
                     appendDeletedPosts(responsePosts);
+
                 }
 
-                currentAmountOfPosts = responsePosts.length;                
+                posts = responsePosts;
+
+                currentAmountOfPosts = responsePosts.length;
+
+                if(posts_lenght_before_fetch == 0) {
+                    nextPost();
+                }
             })
             .catch(error => {
+
                 console.error(error);
+
+                if(posts.length == 0) {
+                    showNoContent();
+                }
+
             })
-    }
-
-    function shouldShowAnyCurrentPosts()
-    {
-        console.log('shouldShowAnyCurrentPosts()');        
-
-        posts.forEach((post) => {
-            const date_now        = new Date();   
-            const post_start_date = new Date(post.start_date);
-            const post_end_date   = new Date(post.end_date);        
-
-            const date_and_times = getDateAndTimes(post_start_date, post_end_date, date_now);              
-
-            if(shouldShow(date_and_times)){
-                return true;
-            }
-        });
-
-        return false;
     }
 
     function showNoContent()
     {
-        console.log('showNOContent');        
+        console.log('showNOContent');
 
         // Apply class selected only if not already selected
-        if(loader.classList != 'selected') {
+        if(!loader.classList.contains('selected')) {
             loader
                 .classList.add('selected');
         }
 
-        // Keeps checking if should show any current posts.
-        // If not, fetches the server for updated in the JSON posts.
-        // Does it every 5 seconds.
         setTimeout(() => {
-            if(shouldShowAnyCurrentPosts()) {
-                nextPost();
-            } else {
-                checkPostsUpdate();
-
-                showNoContent();
-            }
+            checkPostsUpdate();
         }, 5000);
-
     }
 
     function appendDeletedPosts(responsePosts)
@@ -211,33 +225,34 @@ window.addEventListener('load', (event) => {
         responsePosts.forEach(function(e) {
             responsePostsIds.push(e.post_id);
         });
+
         posts.forEach(function(e) {
             currentPostsIds.push(e.post_id);
         });
 
-        let removedPostsIds = currentPostsIds.filter(x => !responsePostsIds.includes(x));        
+        let removedPostsIds = currentPostsIds.filter(x => !responsePostsIds.includes(x));
 
         removedPostsIds.forEach(removedPostId => {
+
             const deleteElement = document.getElementById(removedPostId);
+
             deletedPosts.push(deleteElement);
         })
 
     }
 
     function spliceDeletedPosts(mediaElement, oldDeletedPosts)
-    {    
+    {
         const index = deletedPosts.indexOf(mediaElement);
 
         if (index > -1) {
             oldDeletedPosts.splice(index, 1);
             mediaElements = document.querySelectorAll("#slider img, video");
             amountOfMedia = mediaElements.length;
-            
+
             return oldDeletedPosts;
         }
     }
-
-    
 
     function createAddedPosts(responsePosts)
     {
@@ -275,19 +290,14 @@ window.addEventListener('load', (event) => {
         });
     }
 
-    
-
     function addEventToVideo(video)
     {
         video.addEventListener('ended', function(e) {
             mediaElements[currentMediaIndex]
                 .classList.remove("selected");
-            
-            if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
-                mediaElements[currentMediaIndex].remove();
-                deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
 
-                posts.splice(currentMediaIndex, 1);
+            if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
+                removePost(currentMediaIndex);
             }
 
             currentMediaIndex++;
@@ -300,56 +310,12 @@ window.addEventListener('load', (event) => {
         });
     }
 
-    // Functions Declarations
-    function getDateAndTimes(post_start_date, post_end_date, date_now)
+    function removePost(currentMediaIndex)
     {
+        mediaElements[currentMediaIndex].remove();
+        deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
 
-        let object_with_dates;
-        
-        object_with_dates = {
-            now: {
-                date_sum: getSumDate(date_now),
-                hour: date_now.getHours(),
-                minute: date_now.getMinutes(),
-            },
-            start: {
-                date_sum: getSumDate(post_start_date),
-                hour: post_start_date.getHours(),
-                minute: post_start_date.getMinutes(),
-            },
-            end: {
-                date_sum: getSumDate(post_end_date),
-                hour: post_start_date.getHours(),
-                minute: post_end_date.getMinutes(),
-            },
-        };
-
-
-        return object_with_dates;
+        posts.splice(currentMediaIndex, 1);
     }
-
-    function shouldShow(date_and_times)
-    {
-        if(betweenStartEnd(date_and_times.now.date_sum, date_and_times.start.date_sum, date_and_times.end.date_sum)) {
-            if(betweenStartEnd(date_and_times.now.hour, date_and_times.start.hour, date_and_times.end.hour)) {     
-                if(betweenStartEnd(date_and_times.now.minute, date_and_times.start.minute, date_and_times.end.minute)) {
-                    return true;                
-                }    
-            }
-        }
-
-        return false;
-    }
-
-    function getSumDate(date_object)
-    {
-        return date_object.getFullYear() + date_object.getMonth() + date_object.getDay();
-    }
-
-    function betweenStartEnd(now_value, start_value, end_value)
-    {
-        return start_value <= now_value && end_value >= now_value;
-    }
-
 });
 

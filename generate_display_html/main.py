@@ -26,6 +26,9 @@ def main() -> None:
         # Fetches the API
         fetch.current_display_posts_api(DISPLAY_ID)
 
+        # Generates the json for the showcase. Has only the needed posts for the Javascript
+        generate.current_data_for_display('../data/local_data.json')
+
         # Generates the index.html after complete fetching
         generate.index()
 
@@ -40,12 +43,17 @@ def main() -> None:
     else:
         chrome.open_file('../resources/index.html')
 
-    # Keeps checking for API updates, re-generating the local_data.json
+    # Keeps checking for API updates, re-generating the local_data.json and showcase.json
     while True:
         if fetch.current_display_posts_api(DISPLAY_ID):
             print('new data found!')
         else:
             print('no updates')
+
+        if generate.current_data_for_display('../data/local_data.json'):
+            print('showcase updated')
+        else:
+            print('showcase not updated')
 
         time.sleep(REQUEST_TIME)
 
