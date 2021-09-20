@@ -43,3 +43,27 @@ def get_request_time() -> int:
     config_json = _get_config_json()
 
     return config_json['request_time']
+
+
+def get_resources_folder() -> str:
+    return '../resources/'
+
+
+def get_medias_folder() -> str:
+    return '../resources/medias/'
+
+
+def get_data_folder() -> str:
+    return '../data/'
+
+
+def get_local_data_json_file_path() -> str:
+    return get_data_folder() + 'local_data.json'
+
+
+def get_showcase_json_file_path() -> str:
+    return get_data_folder() + 'showcase.json'
+
+
+def get_etag_json_file_path() -> str:
+    return get_data_folder() + 'etag.json'

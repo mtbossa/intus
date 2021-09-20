@@ -6,6 +6,8 @@ import os
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+import config
+
 
 class Handler(BaseHTTPRequestHandler):
     """ Handles the requests from Javascript."""
@@ -19,7 +21,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """Handle GET request."""
-        last_modified_date = os.path.getmtime('../data/showcase.json')
+        last_modified_date = os.path.getmtime(config.get_showcase_json_file_path())
         last_modified_string = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_modified_date))
 
         request_last_modified_string = str(self.headers.get('If-Modified-Since'))
@@ -27,7 +29,7 @@ class Handler(BaseHTTPRequestHandler):
         if request_last_modified_string != last_modified_string:
             self.send_response(200)
 
-            with open('../data/showcase.json', 'r') as f:
+            with open(config.get_showcase_json_file_path(), 'r') as f:
                 posts = f.read()
 
             response = posts.encode()

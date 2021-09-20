@@ -1,6 +1,6 @@
 api só envia os posts que ainda não passaram da data de fim. quando requisitada, verifica
 somente os posts que estão dentro da data.
 
-excluir as mídias que não estão mais no local_data.json
+excluir as mídias que não estão mais no local_data.json - continuar, verificar se está funcionando
 
 adicionar imagem quando não existe nenhum post no template.
