@@ -18,6 +18,8 @@ def current_display_posts_api(display_id: int) -> bool:
     """
     Check the API of the correspondent display
     for posts updates.
+    :param display_id: int Display ID of this Raspberry
+    :return: bool Only for printing in the console
     """
     print('fetching data')
     api_url = config.get_api_url() + str(display_id)
@@ -42,7 +44,7 @@ def current_display_posts_api(display_id: int) -> bool:
 
         content = json.loads(api_response.content)
 
-        generate.generate_local_json(content)
+        generate.generate_local_data_json(content)
 
         return True
 

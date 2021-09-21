@@ -6,4 +6,4 @@ chmod 400 bin/github/intus_github
 mkdir -p /home/pi/.config/autostart && cp bin/autostart-display.desktop /home/pi/.config/autostart/autostart-display.desktop
 python3.9 -m venv venv
 source venv/bin/activate
-pip install -r requirement.txt
+pip install -r requirements/prod.txt

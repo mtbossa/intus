@@ -18,6 +18,7 @@ def index() -> None:
     """
     Generate index.html page
     using Jinja2 template.
+    :return: None
     """
     with open(config.get_local_data_json_file_path(), 'r') as f:
         posts = json.loads(f.read())
@@ -33,11 +34,13 @@ def index() -> None:
 
 def current_data_for_display(local_data_path) -> bool:
     """
-        Checks the current local_data.json to
-        regenerate the showcase.json if new
-        posts should be checked. showcase.json
-        contains only the posts that should be
-        passing in the current time.
+    Checks the current local_data.json to
+    regenerate the showcase.json if new
+    posts should be checked. showcase.json
+    contains only the posts that should be
+    passing in the current time.
+    :param local_data_path: str Path to the current local_data.json
+    :return: bool Only for printing in the console
     """
     with open(local_data_path, 'r') as f:
         local_data_content = json.loads(f.read())
@@ -50,8 +53,10 @@ def _generate_showcase_json(local_data_content: list) -> bool:
     Generate showcase.json, which
     holds the data for which posts should
     be showing in current time. In other words,
-    generates de json that has the live posts
-    for the javascript to check.
+    generates the JSON that has the live posts
+    for the Javascript to check.
+    :param local_data_content: list Contents from the current local_data.json
+    :return: bool Only for printing in the console
     """
     showcase_content = []
     for post_data in local_data_content:
@@ -89,6 +94,13 @@ def _generate_showcase_json(local_data_content: list) -> bool:
 
 
 def _compare_new_showcase_to_old(new_showcase: list) -> bool:
+    """
+    Compares the new showcase content from the old one
+    so it don't get updated every time, only when
+    they are different
+    :param new_showcase: list Contents from the new showcase data
+    :return: bool True if old and new showcase are the same
+    """
     # Open the current showcase.json, which hasn't been updated yet
     with open(config.get_showcase_json_file_path(), 'r') as f:
         current_showcase = json.loads(f.read())
@@ -102,6 +114,8 @@ def generate_etag_json(etag: str) -> None:
     """
     Generate etag.json file which
     holds the last response ETag.
+    :param etag: str ETag from the API response
+    :return: None
     """
     etag_dict = {
         'etag': etag
@@ -112,15 +126,19 @@ def generate_etag_json(etag: str) -> None:
         f.write(json_string)
 
 
-def generate_local_json(content: dict) -> None:
+def generate_local_data_json(content: dict) -> None:
     """
     Generate local_data.json which
     holds the local data info for Javascript usage.
+    Also checks if any media should be deleted.
+    :param content: dict Data from the API already converted from JSON
+    :return: None
     """
     posts_list = []
     new_media_names_list = []
 
     for post in content['posts']:
+        # The name is needed for later verifying if any media should be deleted
         new_media_names_list.append(utils.create_filename(post['media']['name'], post['media']['extension']))
 
         complete_path = medias.download_media(post['media'])
@@ -137,6 +155,7 @@ def generate_local_json(content: dict) -> None:
             'local_path': complete_path
         })
 
+    # Will check if any media should be deleted
     medias.check_deletion(new_media_names_list)
 
     local_json_posts = json.dumps(posts_list, indent=2)
