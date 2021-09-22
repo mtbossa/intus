@@ -22,7 +22,7 @@ def download_media(media: dict) -> str:
 
     filename = utils.create_filename(name, extension)
 
-    path = config.get_medias_folder() + filename
+    path = os.path.join(config.get_medias_folder(), filename)
 
     # Only downloads the file if it's not already downloaded
     if not os.path.isfile(path):

@@ -14,7 +14,7 @@ import config
 import generate
 
 
-def current_display_posts_api(display_id: int) -> bool:
+def current_display_posts_api() -> bool:
     """
     Check the API of the correspondent display
     for posts updates.
@@ -22,7 +22,7 @@ def current_display_posts_api(display_id: int) -> bool:
     :return: bool Only for printing in the console
     """
     print('fetching data')
-    api_url = config.get_api_url() + str(display_id)
+    api_url = config.get_api_url()
 
     if not os.path.isfile(config.get_etag_json_file_path()):
         etag = '""'

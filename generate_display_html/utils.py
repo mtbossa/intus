@@ -131,6 +131,7 @@ def _check_dates_and_times(start_datetime, end_datetime, now_datetime) -> bool:
 
     return False
 
+
 def same_list(l1, l2):
     """
     Checks if a list is the same as the other. Order matters.

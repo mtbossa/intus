@@ -23,12 +23,14 @@ def index() -> None:
     with open(config.get_local_data_json_file_path(), 'r') as f:
         posts = json.loads(f.read())
 
+    script_path = os.path.abspath('js/script.js')
+
     file_loader = FileSystemLoader('templates')
     env = Environment(loader=file_loader)
 
-    rendered = env.get_template('display.html').render(posts=posts)
+    rendered = env.get_template('display.html').render(posts=posts, script_path=script_path)
 
-    with open(config.get_resources_folder() + '/index.html', 'w') as f:
+    with open(os.path.join(config.get_resources_folder(),'index.html'), 'w') as f:
         f.write(rendered)
 
 
@@ -162,3 +164,16 @@ def generate_local_data_json(content: dict) -> None:
 
     with open(config.get_local_data_json_file_path(), 'w') as f:
         f.write(local_json_posts)
+
+
+def config_file(display_id: int) -> None:
+    config_dict = {
+        'display_id': display_id,
+        'request_time': 5,
+        'api_url': 'http://192.168.0.102/api/fetch-display-posts/' + str(display_id)
+    }
+
+    config_json = json.dumps(config_dict, indent=2)
+
+    with open(os.path.join(config.get_config_folder(), '.config.json'), 'w') as f:
+        f.write(config_json)
