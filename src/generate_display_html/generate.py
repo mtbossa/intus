@@ -20,17 +20,18 @@ def index() -> None:
     using Jinja2 template.
     :return: None
     """
+
     with open(config.get_local_data_json_file_path(), 'r') as f:
         posts = json.loads(f.read())
 
-    script_path = os.path.abspath('js/script.js')
+    script_path = os.path.abspath('../resources/js/script.js')
 
-    file_loader = FileSystemLoader('templates')
+    file_loader = FileSystemLoader('../resources/templates')
     env = Environment(loader=file_loader)
 
     rendered = env.get_template('display.html').render(posts=posts, script_path=script_path)
 
-    with open(os.path.join(config.get_resources_folder(),'index.html'), 'w') as f:
+    with open(os.path.join(config.get_resources_folder(), 'index.html'), 'w') as f:
         f.write(rendered)
 
 

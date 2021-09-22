@@ -19,10 +19,6 @@ def main() -> None:
 
     # Initial configuration
     if not os.path.isfile(os.path.join(config.get_config_folder(), '.config.json')):
-        config_folder = config.get_config_folder()
-        data_folder = config.get_data_folder()
-        resources_folder = config.get_resources_folder()
-        medias_folder = config.get_medias_folder()
 
         os.makedirs(config.get_config_folder(), exist_ok=True)
         os.makedirs(config.get_data_folder(), exist_ok=True)
@@ -51,7 +47,7 @@ def main() -> None:
 
     # Opens loader.html if first time opening the Raspberry
     if not os.path.isfile(config.get_local_data_json_file_path()):
-        chrome.open_file(os.path.abspath('resources/loader.html'))
+        chrome.open_file(os.path.abspath('../resources/loader.html'))
 
         # Fetches the API
         fetch.current_display_posts_api()

@@ -7,8 +7,6 @@ import json
 import os.path
 from pathlib import Path
 
-from appdirs import *
-
 APP_NAME = 'GenerateDisplayHtml'
 APP_AUTHOR = 'Intus'
 APP_FOLDER = os.path.join(Path.home(), APP_AUTHOR, APP_NAME)
