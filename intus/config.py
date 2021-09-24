@@ -77,3 +77,11 @@ def get_showcase_json_file_path() -> str:
 
 def get_etag_json_file_path() -> str:
     return os.path.join(get_data_folder(), 'etag.json')
+
+
+def get_script_file_path() -> str:
+    return os.path.join(get_resources_folder(), os.path.join('js', 'script.js'))
+
+
+def get_loader_file_path() -> str:
+    return os.path.join(get_resources_folder(), 'loader.html')

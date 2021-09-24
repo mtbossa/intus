@@ -5,12 +5,12 @@ Script for opening on startup:
 ```bash
 #! /bin/bash
 
-cd /home/pi/generate_display_html
+cd /home/pi/intus
 eval 'ssh-agent'
 ssh-add bin/intus_github
 git pull
 source venv/bin/activate
-python3.9 main.py
+python3.9 __main__.py
 unclutter -idle 0
 ```
 Create/copy /bin/autostart-display.desktop to:
@@ -34,3 +34,21 @@ git clone --single-branch --branch main https://github.com/mtbossa/generate_disp
 login: mtbossa
 pat: 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
 ```
+
+Build:
+```
+python -m pip install build
+
+python -m build --sdist
+```
+To change the code:
+```
+Create venv
+
+Activate it
+
+pip install -e .
+```
+Now, every change will be applied
+when python -m intus, without the need
+to install again

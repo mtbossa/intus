@@ -2,16 +2,16 @@
 Responsible for generating
 the index.html page.
 """
+import json
 import os
 
-import utils
+import pkg_resources
 
-import json
+from jinja2 import Environment, PackageLoader
 
-from jinja2 import Environment, FileSystemLoader
-
-import medias
-import config
+from intus import medias
+from intus import config
+from intus import utils
 
 
 def index() -> None:
@@ -24,9 +24,10 @@ def index() -> None:
     with open(config.get_local_data_json_file_path(), 'r') as f:
         posts = json.loads(f.read())
 
-    script_path = os.path.abspath('../resources/js/script.js')
+    script_path = config.get_script_file_path()
 
-    file_loader = FileSystemLoader('../resources/templates')
+    file_loader = PackageLoader('intus', 'templates')
+
     env = Environment(loader=file_loader)
 
     rendered = env.get_template('display.html').render(posts=posts, script_path=script_path)

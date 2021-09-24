@@ -6,7 +6,7 @@ import os
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-import config
+from intus import config
 
 
 class Handler(BaseHTTPRequestHandler):

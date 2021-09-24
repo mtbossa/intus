@@ -1,0 +1,3 @@
+recursive-include intus/resources *
+recursive-include intus/resources/js *
+recursive-include intus/templates *

@@ -2,22 +2,19 @@
 Contains functions for fetching the API
 and download the medias.
 """
-
-import os
-
 import json
+import os
 
 import requests
 
-import config
-import generate
+from intus import config
+from intus import generate
 
 
 def current_display_posts_api() -> bool:
     """
     Check the API of the correspondent display
     for posts updates.
-    :param display_id: int Display ID of this Raspberry
     :return: bool Only for printing in the console
     """
     print('fetching data')

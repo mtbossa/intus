@@ -3,7 +3,7 @@ Functions related to the browser (Chrome).
 """
 import os
 
-import utils
+from intus import utils
 
 
 def open_file(file_name: str) -> None:

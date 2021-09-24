@@ -3,8 +3,8 @@ from pathlib import Path
 
 import requests
 
-import config
-import utils
+from intus import config
+from intus import utils
 
 
 def download_media(media: dict) -> str:

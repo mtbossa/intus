@@ -4,14 +4,18 @@ program, and logic.
 """
 
 import os
+import shutil
 import threading
 import time
 
-import config
-import generate
-import fetch
-import chrome
-import webserver
+import pkg_resources
+
+
+from intus import generate
+from intus import config
+from intus import fetch
+from intus import chrome
+from intus import webserver
 
 
 def main() -> None:
@@ -22,8 +26,13 @@ def main() -> None:
 
         os.makedirs(config.get_config_folder(), exist_ok=True)
         os.makedirs(config.get_data_folder(), exist_ok=True)
-        os.makedirs(config.get_resources_folder(), exist_ok=True)
         os.makedirs(config.get_medias_folder(), exist_ok=True)
+
+        try:
+            resources_location = pkg_resources.resource_filename("intus", "resources")
+            shutil.copytree(resources_location, config.get_resources_folder())
+        finally:
+            pkg_resources.cleanup_resources()
 
         while True:
             try:
@@ -47,7 +56,7 @@ def main() -> None:
 
     # Opens loader.html if first time opening the Raspberry
     if not os.path.isfile(config.get_local_data_json_file_path()):
-        chrome.open_file(os.path.abspath('../resources/loader.html'))
+        chrome.open_file(config.get_loader_file_path())
 
         # Fetches the API
         fetch.current_display_posts_api()
