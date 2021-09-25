@@ -14,11 +14,15 @@ let amountOfMedia = mediaElements.length;
 
 let deletedPosts = [];
 
+let addedPosts = [];
+
 window.addEventListener('load', (event) => {
 
 
     // Code starts here
-    getFirstData();
+    setTimeout(() => {
+        getFirstData();
+    }, 7000)
 
     function getFirstData()
     {
@@ -52,15 +56,11 @@ window.addEventListener('load', (event) => {
 
                 let responsePosts = data;
 
-                createAddedPosts(responsePosts);
+                appendAddedPosts(responsePosts);
 
-                mediaElements = document.querySelectorAll("#slider img, video");
-
-                amountOfMedia = mediaElements.length;
-
-                posts = responsePosts;
-
-                currentAmountOfPosts = responsePosts.length;
+                if(addedPosts.length > 0) {
+                    addPosts(addedPosts);                    
+                }
 
                 nextPost();
             })
@@ -82,10 +82,6 @@ window.addEventListener('load', (event) => {
 
         } else {
             let post = posts[currentMediaIndex];
-
-            console.log('currentMediaIndex insdie nextPost: ', currentMediaIndex);
-            console.log('posts insdie nextPost: ', posts);
-            console.log('post inside nextPost: ', post);
 
             // If the loader is selected, removes it to show the post
             if(loader.classList.contains('selected')) {
@@ -112,6 +108,11 @@ window.addEventListener('load', (event) => {
                         // and deletes it if yes.
                         if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
                             removePost(currentMediaIndex);
+                        }
+
+                        // Checks if there are any new posts to create
+                        if(addedPosts.length > 0) {
+                            addPosts(addedPosts);
                         }
 
                         currentMediaIndex++;
@@ -175,12 +176,8 @@ window.addEventListener('load', (event) => {
 
                 if(responsePosts.length > currentAmountOfPosts) {
 
-                    createAddedPosts(responsePosts);
-
-                    mediaElements = document.querySelectorAll("#slider img, video");
-
-                    amountOfMedia = mediaElements.length;
-
+                    appendAddedPosts(responsePosts);
+                    
 
                 } else if(responsePosts.length < currentAmountOfPosts) {
 
@@ -188,11 +185,9 @@ window.addEventListener('load', (event) => {
 
                 }
 
-                posts = responsePosts;
-
-                currentAmountOfPosts = responsePosts.length;
-
                 if(posts_lenght_before_fetch == 0) {
+                    addPosts(addedPosts);
+
                     nextPost();
                 }
             })
@@ -244,6 +239,95 @@ window.addEventListener('load', (event) => {
             deletedPosts.push(deleteElement);
         })
 
+    }    
+
+    function appendAddedPosts(responsePosts)
+    {
+        let newPosts = getNewPosts(responsePosts);
+
+        newPosts.forEach(newPost => {
+            addedPosts.push(newPost)
+        });        
+    }      
+
+    function createAddedPost(newPost)
+    {        
+        switch(newPost.media_type) {
+            case 'image':
+                let newImage = document.createElement('img');
+
+                newImage.id  = newPost.post_id;
+                newImage.src = newPost.local_path;
+                newImage.alt = newPost.media_name;
+
+                slider.appendChild(newImage);
+                break;
+
+            case 'video':
+                let newVideo    = document.createElement('video');
+                let newSource   = document.createElement('source');
+
+                newVideo.id     = newPost.post_id;
+                newVideo.width  = 1920;
+                newVideo.height = 1080;
+                newVideo.muted  = true;
+                newSource.type  = newPost.media_type + '/' + newPost.media_extension;
+                newSource.src   = newPost.local_path;
+
+                newVideo.appendChild(newSource);
+                slider.appendChild(newVideo);
+
+                addEventToVideo(newVideo);
+                break;
+        }
+    }
+
+    function addEventToVideo(video)
+    {
+        video.addEventListener('ended', function(e) {
+            mediaElements[currentMediaIndex]
+                .classList.remove("selected");
+
+            if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
+                removePost(currentMediaIndex);
+            }
+
+            // Checks if there are any new posts to create
+            if(addedPosts.length > 0) {
+                addPosts(addedPosts);
+            }
+
+            currentMediaIndex++;
+
+            if(currentMediaIndex >= amountOfMedia) {
+                currentMediaIndex = 0;
+            }
+
+            nextPost();
+        });
+    }
+
+    function addPosts(addedPosts)
+    {
+        addedPosts.forEach((addedPost) => {
+            createAddedPost(addedPost)
+            posts.push(addedPost);
+        });
+        
+        mediaElements = document.querySelectorAll("#slider img, video");
+        amountOfMedia = mediaElements.length;
+        currentAmountOfPosts = posts.length;
+
+        addedPosts.splice(0, addedPosts.length)
+    }
+
+    function removePost(currentMediaIndex)
+    {
+        mediaElements[currentMediaIndex].remove();
+        deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
+        posts.splice(currentMediaIndex, 1);
+
+        currentAmountOfPosts = posts.length;
     }
 
     function spliceDeletedPosts(mediaElement, oldDeletedPosts)
@@ -253,7 +337,7 @@ window.addEventListener('load', (event) => {
         if (index > -1) {
             oldDeletedPosts.splice(index, 1);
             mediaElements = document.querySelectorAll("#slider img, video");
-            amountOfMedia = mediaElements.length;
+            amountOfMedia = mediaElements.length;            
 
             return oldDeletedPosts;
         }
@@ -268,70 +352,6 @@ window.addEventListener('load', (event) => {
         });
 
         return result;
-    }
-
-    function createAddedPosts(responsePosts)
-    {
-        let newPosts = getNewPosts(responsePosts);
-
-        newPosts.forEach(function(newPost) {
-            switch(newPost.media_type) {
-                case 'image':
-                    let newImage = document.createElement('img');
-
-                    newImage.id  = newPost.post_id;
-                    newImage.src = newPost.local_path;
-                    newImage.alt = newPost.media_name;
-
-                    slider.appendChild(newImage);
-                    break;
-
-                case 'video':
-                    let newVideo    = document.createElement('video');
-                    let newSource   = document.createElement('source');
-
-                    newVideo.id     = newPost.post_id;
-                    newVideo.width  = 1920;
-                    newVideo.height = 1080;
-                    newVideo.muted  = true;
-                    newSource.type  = newPost.media_type + '/' + newPost.media_extension;
-                    newSource.src   = newPost.local_path;
-
-                    newVideo.appendChild(newSource);
-                    slider.appendChild(newVideo);
-
-                    addEventToVideo(newVideo);
-                    break;
-            }
-        });
-    }
-
-    function addEventToVideo(video)
-    {
-        video.addEventListener('ended', function(e) {
-            mediaElements[currentMediaIndex]
-                .classList.remove("selected");
-
-            if(deletedPosts.includes(mediaElements[currentMediaIndex])) {
-                removePost(currentMediaIndex);
-            }
-
-            currentMediaIndex++;
-
-            if(currentMediaIndex >= amountOfMedia) {
-                currentMediaIndex = 0;
-            }
-
-            nextPost();
-        });
-    }
-
-    function removePost(currentMediaIndex)
-    {
-        mediaElements[currentMediaIndex].remove();
-        deletedPosts = spliceDeletedPosts(mediaElements[currentMediaIndex], deletedPosts);
-
-        posts.splice(currentMediaIndex, 1);
-    }
+    }  
 });
 
