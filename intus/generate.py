@@ -49,10 +49,17 @@ def current_data_for_display(local_data_path) -> bool:
     with open(local_data_path, 'r') as f:
         local_data_content = json.loads(f.read())
 
-    return _generate_showcase_json(local_data_content)
+    # Updates the showcase.json
+    updated, need_media = _generate_showcase_json(local_data_content)
+
+    # Checks if any media must be deleted if showcase was updated
+    if updated:
+        medias.check_deletion(need_media)
+
+    return updated
 
 
-def _generate_showcase_json(local_data_content: list) -> bool:
+def _generate_showcase_json(local_data_content: list) -> tuple:
     """
     Generate showcase.json, which
     holds the data for which posts should
@@ -60,21 +67,35 @@ def _generate_showcase_json(local_data_content: list) -> bool:
     generates the JSON that has the live posts
     for the Javascript to check.
     :param local_data_content: list Contents from the current local_data.json
-    :return: bool Only for printing in the console
+    :return: tuple Bool for printing if it was updated or not and the list with filenames for deletion
     """
+    need_media = []
     showcase_content = []
     for post_data in local_data_content:
         # Verificar a data (lógica javascript) e dar append ou não no post
+        # e baixa somente as mídias que precisam ser mostradas
         if utils.should_show(post_data['start_date'], post_data['end_date']):
+
+            complete_path = medias.download_media(
+                media_url=post_data['media_url'],
+                media_name=post_data['media_name'],
+                media_extension=post_data['media_extension']
+            )
+
+            head, filename = os.path.split(complete_path)
+
+            need_media.append(filename)
+
             showcase_content.append({
                 'post_id': post_data['post_id'],
                 'media_name': post_data['media_name'],
                 'media_duration': post_data['media_duration'],
                 'media_type': post_data['media_type'],
                 'media_extension': post_data['media_extension'],
-                'local_path': post_data['local_path']
+                'local_path': complete_path
             })
 
+    updated = False
     if os.path.isfile(config.get_showcase_json_file_path()):
         # Compares the current showcase (the stored one) to the new one created
         # Only updates the current showcase if lists are no the same
@@ -85,16 +106,16 @@ def _generate_showcase_json(local_data_content: list) -> bool:
             with open(config.get_showcase_json_file_path(), 'w') as f:
                 f.write(local_json_posts)
 
-            return True
+            updated = True
     else:
         local_json_posts = json.dumps(showcase_content, indent=2)
 
         with open(config.get_showcase_json_file_path(), 'w') as f:
             f.write(local_json_posts)
 
-        return True
+        updated = True
 
-    return False
+    return updated, need_media
 
 
 def _compare_new_showcase_to_old(new_showcase: list) -> bool:
@@ -145,8 +166,6 @@ def generate_local_data_json(content: dict) -> None:
         # The name is needed for later verifying if any media should be deleted
         new_media_names_list.append(utils.create_filename(post['media']['name'], post['media']['extension']))
 
-        complete_path = medias.download_media(post['media'])
-
         posts_list.append({
             'post_id': post['id'],
             'media_name': post['media']['name'],
@@ -156,7 +175,6 @@ def generate_local_data_json(content: dict) -> None:
             'media_extension': post['media']['extension'],
             'start_date': utils.transform_date_to_epoch(post['start_date']),
             'end_date': utils.transform_date_to_epoch(post['end_date']),
-            'local_path': complete_path
         })
 
     # Will check if any media should be deleted

@@ -83,6 +83,10 @@ window.addEventListener('load', (event) => {
         } else {
             let post = posts[currentMediaIndex];
 
+            console.log('currentMediaIndex insdie nextPost: ', currentMediaIndex);
+            console.log('posts insdie nextPost: ', posts);
+            console.log('post inside nextPost: ', post);
+
             // If the loader is selected, removes it to show the post
             if(loader.classList.contains('selected')) {
                 console.log('selected');
@@ -164,6 +168,7 @@ window.addEventListener('load', (event) => {
                 return response.json();
             })
             .then(data => {
+                console.log('data inside fetchupdate: ', data);
                 let posts_lenght_before_fetch = posts.length;
 
                 let responsePosts = data;
@@ -254,9 +259,20 @@ window.addEventListener('load', (event) => {
         }
     }
 
+    function getNewPosts(responsePosts)
+    {
+        let result = responsePosts.filter(function (o1) {
+            return !posts.some(function (o2) {
+                return o1.post_id === o2.post_id; // return the ones with equal id
+           });
+        });
+
+        return result;
+    }
+
     function createAddedPosts(responsePosts)
     {
-        let newPosts = responsePosts.slice(currentAmountOfPosts);
+        let newPosts = getNewPosts(responsePosts);
 
         newPosts.forEach(function(newPost) {
             switch(newPost.media_type) {

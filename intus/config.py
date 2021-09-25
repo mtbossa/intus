@@ -85,3 +85,6 @@ def get_script_file_path() -> str:
 
 def get_loader_file_path() -> str:
     return os.path.join(get_resources_folder(), 'loader.html')
+
+def get_index_file_path() -> str:
+    return os.path.join(get_resources_folder(), 'index.html')

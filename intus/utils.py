@@ -1,5 +1,6 @@
 """ Generic functions"""
 import datetime
+import errno
 import os
 import pathlib
 import platform
@@ -109,7 +110,7 @@ def _check_dates_and_times(start_datetime, end_datetime, now_datetime) -> bool:
         # de início da postagem, não preciso verificar mais as horas
         # e minutos de início, somente de fim
         if start_datetime.hour < now_datetime.hour:
-            if end_datetime.hour >= now_datetime.hour and end_datetime.minute > now_datetime.hour.minute:
+            if end_datetime.hour >= now_datetime.hour and end_datetime.minute > now_datetime.minute:
                 # Não preciso verificar os minutos, pois sei que
                 # não vai terminar nessa hora ainda.
                 return True
@@ -161,7 +162,14 @@ def delete_file(filename: str) -> None:
     :param filename: Filename with path
     :return: None
     """
-    os.remove(filename)
+    try:
+        os.remove(filename)
+    except OSError as e:  # this would be "except OSError, e:" before Python 2.6
+        if e.errno != errno.ENOENT:  # errno.ENOENT = no such file or directory
+            raise  # re-raise exception if a different error occurred
+        else:
+            print(e)
+        print(e)
 
 
 def get_folder_filenames(folder_path: str) -> list:

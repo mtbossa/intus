@@ -4,6 +4,7 @@ and download the medias.
 """
 import json
 import os
+import time
 
 import requests
 
@@ -31,17 +32,26 @@ def current_display_posts_api() -> bool:
 
     headers = {'If-None-Match': last_etag}
 
-    api_response = requests.get(api_url, headers=headers)
+    try:
+        api_response = requests.get(api_url, headers=headers)
 
-    if api_response.status_code == 200:
-        print('new data found')
+        if api_response.status_code == 200:
+            print('new data found')
 
-        generate.generate_etag_json(api_response.headers['ETag'])
+            generate.generate_etag_json(api_response.headers['ETag'])
 
-        content = json.loads(api_response.content)
+            content = json.loads(api_response.content)
 
-        generate.generate_local_data_json(content)
+            generate.generate_local_data_json(content)
 
-        return True
+            return True
 
-    return False
+        return False
+
+    except requests.exceptions.ConnectionError as e:
+        print(e)
+    except requests.exceptions.Timeout as e:
+        print(e)
+    except requests.exceptions.HTTPError as e:
+        print(e)
+
