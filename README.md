@@ -52,3 +52,12 @@ pip install -e .
 Now, every change will be applied
 when python -m intus, without the need
 to install again
+
+For installing from git:
+
+```
+python -m pip install git+https://github.com/mtbossa/intus.git@main#egg=intus
+
+Update:
+python -m pip install git+https://github.com/mtbossa/intus.git@main#egg=intus --upgrade
+```
