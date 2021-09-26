@@ -37,6 +37,8 @@ def current_display_posts_api() -> bool:
 
         if api_response.status_code == 200:
 
+            print('teste')
+
             generate.generate_etag_json(api_response.headers['ETag'])
 
             content = json.loads(api_response.content)
