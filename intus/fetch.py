@@ -36,7 +36,6 @@ def current_display_posts_api() -> bool:
         api_response = requests.get(api_url, headers=headers)
 
         if api_response.status_code == 200:
-            print('new data found')
 
             generate.generate_etag_json(api_response.headers['ETag'])
 
