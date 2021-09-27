@@ -12,6 +12,26 @@ APP_AUTHOR = 'Intus'
 APP_FOLDER = os.path.join(Path.home(), APP_AUTHOR, APP_NAME)
 
 
+def get_intus_folder():
+    return os.path.join(Path.home(), APP_AUTHOR)
+
+
+def get_app_folder():
+    return os.path.join(Path.home(), APP_AUTHOR, APP_NAME)
+
+
+def get_home_config_folder():
+    return os.path.join(Path.home(), '.config')
+
+
+def get_autostart_folder():
+    return os.path.join(get_home_config_folder(), 'autostart')
+
+
+def get_installation_folder():
+    return os.path.join(get_resources_folder(), 'installation')
+
+
 def _get_config_data() -> dict:
     """
     Loads the config.json file and
@@ -85,6 +105,7 @@ def get_script_file_path() -> str:
 
 def get_loader_file_path() -> str:
     return os.path.join(get_resources_folder(), 'loader.html')
+
 
 def get_index_file_path() -> str:
     return os.path.join(get_resources_folder(), 'index.html')

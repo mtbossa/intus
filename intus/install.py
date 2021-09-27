@@ -9,14 +9,31 @@ import pkg_resources
 from intus import config, generate, chrome, fetch
 
 
+def reinstall() -> None:
+    try:
+        shutil.rmtree(config.get_app_folder())
+        os.rmdir(config.get_intus_folder())
+        os.remove(os.path.join(config.get_autostart_folder(), 'autostart-display.desktop'))
+        print('Excluindo todos os arquivos...')
+        print('Para instalar novamente, execute: python -m intus')
+    except OSError as e:
+        print("Error: %s - %s." % (e.filename, e.strerror))
+        print('Arquivos já deletados.')
+
+
 def install() -> None:
     os.makedirs(config.get_config_folder(), exist_ok=True)
     os.makedirs(config.get_data_folder(), exist_ok=True)
     os.makedirs(config.get_medias_folder(), exist_ok=True)
+    # Create the autostart dir inside .config folder
+    os.makedirs(config.get_autostart_folder(), exist_ok=True)
 
     try:
         resources_location = pkg_resources.resource_filename('intus', 'resources')
         shutil.copytree(resources_location, config.get_resources_folder())
+
+        shutil.move(os.path.join(config.get_installation_folder(), 'autostart-display.desktop'),
+                    os.path.join(config.get_autostart_folder(), 'autostart-display.desktop'))
     finally:
         pkg_resources.cleanup_resources()
 
@@ -36,18 +53,3 @@ def install() -> None:
             # we're ready to exit the loop.
             generate.config_file(display_id)
             break
-
-    # Opens loader.html if first time opening the Raspberry
-    chrome.open_file(config.get_loader_file_path())
-
-    # Fetches the API
-    fetch.current_display_posts_api()
-
-    # Generates the json for the showcase. Has only the needed posts for the Javascript
-    generate.current_data_for_display(config.get_local_data_json_file_path())
-
-    # Generates the index.html after complete fetching
-    generate.index()
-
-    # Closes Chrome, which current is showing the loader.html
-    chrome.close()
