@@ -1,3 +1,4 @@
 recursive-include intus/resources *
 recursive-include intus/resources/js *
+recursive-include intus/resources/installation *
 recursive-include intus/templates *

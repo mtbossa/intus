@@ -15,7 +15,7 @@ def install() -> None:
     os.makedirs(config.get_medias_folder(), exist_ok=True)
 
     try:
-        resources_location = pkg_resources.resource_filename("intus", "resources")
+        resources_location = pkg_resources.resource_filename('intus', 'resources')
         shutil.copytree(resources_location, config.get_resources_folder())
     finally:
         pkg_resources.cleanup_resources()

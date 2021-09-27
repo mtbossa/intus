@@ -1,5 +1,3 @@
-Change the .config.json file with the data of the current display.
-
 Script for opening on startup:
 
 ```bash
@@ -56,8 +54,8 @@ to install again
 For installing from git:
 
 ```
-python -m pip install git+https://github.com/mtbossa/intus.git@main#egg=intus
+python -m pip install git+https://github.com/mtbossa/intus.git
 
 Update:
-python -m pip install git+https://github.com/mtbossa/intus.git@main#egg=intus --upgrade
+python -m pip install --upgrade git+https://github.com/mtbossa/intus.git 
 ```
