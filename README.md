@@ -59,3 +59,17 @@ python -m pip install git+https://github.com/mtbossa/intus.git
 Update:
 python -m pip install --upgrade git+https://github.com/mtbossa/intus.git 
 ```
+
+For installing from private repository:
+```
+localhost = server url
+pip install --index-url http://localhost:8080/simple/ intus
+
+Update:
+pip install --upgrade --index-url http://localhost:8080/simple/ intus
+```
+
+For creating repository server:
+```
+https://www.linode.com/docs/guides/how-to-create-a-private-python-package-repository/
+```

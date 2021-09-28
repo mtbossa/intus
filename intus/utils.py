@@ -80,13 +80,13 @@ def should_show(start_date: float, end_date: float) -> bool:
     end_datetime = datetime.datetime.fromtimestamp(end_date)
     now_datetime = datetime.datetime.now()
 
-    if _check_dates_and_times(start_datetime, end_datetime, now_datetime):
+    if check_dates_and_times(start_datetime, end_datetime, now_datetime):
         return True
 
     return False
 
 
-def _check_dates_and_times(start_datetime, end_datetime, now_datetime) -> bool:
+def check_dates_and_times(start_datetime, end_datetime, now_datetime) -> bool:
     """
     Checks date and times of the post, verifying if it should be
     shown of not in the given moment (now).
