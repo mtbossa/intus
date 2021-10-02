@@ -5,57 +5,117 @@ from intus import utils
 
 
 class TestShouldShow(unittest.TestCase):
+
+
     def test_check_dates_and_times(self):
-        # Already started
-        # Start date 2021-9-27 10:10:10 AM - 1632748210
-        # End date 2021-9-27 09:20:10 PM - 1632788410
-        # Now date 2021-9-27 10:20:10 AM - 1632748810
+        # Date Tests
+        # Already started date (same day now day)
         # True
-        start_datetime = datetime.datetime.fromtimestamp(1632748210)
-        end_datetime = datetime.datetime.fromtimestamp(1632788410)
-        now_datetime = datetime.datetime.fromtimestamp(1632748810)
-        self.assertTrue(utils.check_dates_and_times(start_datetime, end_datetime, now_datetime))
+        start_date = datetime.date.fromisoformat('2021-10-27')
+        end_date = datetime.date.fromisoformat('2021-10-28')
 
-        # Shouldn't start yet
-        # Start date 2021-10-10 05:10:10 AM - 1633853410
-        # End date 2021-11-25 08:30:50 PM - 1637839850
-        # Now date 2021-10-08 07:25:10 PM - 1633731910
+        start_time = datetime.time.fromisoformat('19:00:00')
+        end_time = datetime.time.fromisoformat('20:00:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-10-27 19:30:00')
+        self.assertTrue(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
+
+        # Shouldn't start yet by date (now day less than start day)
         # True
-        start_datetime = datetime.datetime.fromtimestamp(1633853410)
-        end_datetime = datetime.datetime.fromtimestamp(1637839850)
-        now_datetime = datetime.datetime.fromtimestamp(1633731910)
-        self.assertFalse(utils.check_dates_and_times(start_datetime, end_datetime, now_datetime))
+        start_date = datetime.date.fromisoformat('2021-11-10')
+        end_date = datetime.date.fromisoformat('2021-12-10')
 
-        # Ended
-        # Start date Thursday, November 25, 2021 8:30:50 AM GMT-03:00 - 1637839850
-        # End date Tuesday, November 30, 2021 10:30:50 PM GMT-03:00- 1638322250
-        # Now date Tuesday, November 30, 2021 11:30:50 PM GMT-03:00 - 1638325850
+        start_time = datetime.time.fromisoformat('19:00:00')
+        end_time = datetime.time.fromisoformat('20:00:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-10-27 19:30:00')
+        self.assertFalse(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
+
+        # Ended date
+        # False
+        start_date = datetime.date.fromisoformat('2021-05-15')
+        end_date = datetime.date.fromisoformat('2021-05-25')
+
+        start_time = datetime.time.fromisoformat('19:00:00')
+        end_time = datetime.time.fromisoformat('20:00:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-06-10 19:30:00')
+        self.assertFalse(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
+
+        # Show hour earlier than now
         # True
-        start_datetime = datetime.datetime.fromtimestamp(1637839850)
-        end_datetime = datetime.datetime.fromtimestamp(1638322250)
-        now_datetime = datetime.datetime.fromtimestamp(1638325850)
-        self.assertFalse(utils.check_dates_and_times(start_datetime, end_datetime, now_datetime))
+        start_date = datetime.date.fromisoformat('2021-05-14')
+        end_date = datetime.date.fromisoformat('2021-06-25')
 
-        # Start now hour and end now hour
-        # Start date Sunday, January 10, 2021 7:10:10 AM GMT-03:00 - 1610273410
-        # End date Sunday, January 10, 2021 7:50:10 AM GMT-03:00 - 1610275810
-        # Now date Sunday, January 10, 2021 7:15:10 AM GMT-03:00 - 1610273710
+        start_time = datetime.time.fromisoformat('15:30:00')
+        end_time = datetime.time.fromisoformat('20:00:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-06-10 16:30:00')
+        self.assertTrue(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
+
+        # Show hour same than now
         # True
-        start_datetime = datetime.datetime.fromtimestamp(1610273410)
-        end_datetime = datetime.datetime.fromtimestamp(1610275810)
-        now_datetime = datetime.datetime.fromtimestamp(1610273710)
-        self.assertTrue(utils.check_dates_and_times(start_datetime, end_datetime, now_datetime))
+        start_date = datetime.date.fromisoformat('2021-05-14')
+        end_date = datetime.date.fromisoformat('2021-06-25')
 
-        # Start now hour and end now hour
-        # Start date Tuesday, June 15, 2021 2:30:00 PM GMT-03:00 - 1623778200
-        # End date Sunday, June 20, 2021 2:40:00 PM GMT-03:00 - 1624210800
-        # Now date Tuesday, June 15, 2021 2:20:00 PM GMT-03:00 - 1623777600
+        start_time = datetime.time.fromisoformat('15:30:00')
+        end_time = datetime.time.fromisoformat('20:00:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-06-10 15:31:00')
+        self.assertTrue(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
+
+        # Show hour end same than now
         # True
-        start_datetime = datetime.datetime.fromtimestamp(1623778200)
-        end_datetime = datetime.datetime.fromtimestamp(1624210800)
-        now_datetime = datetime.datetime.fromtimestamp(1623777600)
-        self.assertFalse(utils.check_dates_and_times(start_datetime, end_datetime, now_datetime))
+        start_date = datetime.date.fromisoformat('2021-05-14')
+        end_date = datetime.date.fromisoformat('2021-06-25')
 
+        start_time = datetime.time.fromisoformat('15:30:00')
+        end_time = datetime.time.fromisoformat('17:30:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-06-10 17:00:00')
+        self.assertTrue(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
+
+        # Show start hour end hour same than now
+        # True
+        start_date = datetime.date.fromisoformat('2021-05-14')
+        end_date = datetime.date.fromisoformat('2021-06-25')
+
+        start_time = datetime.time.fromisoformat('18:10:00')
+        end_time = datetime.time.fromisoformat('18:50:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-06-10 18:10:00')
+        self.assertTrue(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
+
+        # Don't show already passed hour
+        # False
+        start_date = datetime.date.fromisoformat('2021-05-14')
+        end_date = datetime.date.fromisoformat('2021-06-25')
+
+        start_time = datetime.time.fromisoformat('09:00:00')
+        end_time = datetime.time.fromisoformat('11:30:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-06-10 11:31:00')
+        self.assertFalse(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
+
+        # Don't show already passed hour
+        # False
+        start_date = datetime.date.fromisoformat('2021-05-14')
+        end_date = datetime.date.fromisoformat('2021-06-25')
+
+        start_time = datetime.time.fromisoformat('09:00:00')
+        end_time = datetime.time.fromisoformat('11:30:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-06-10 12:31:00')
+        self.assertFalse(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
+
+        start_date = datetime.date.fromisoformat('2021-09-22')
+        end_date = datetime.date.fromisoformat('2021-11-10')
+
+        start_time = datetime.time.fromisoformat('10:00:00')
+        end_time = datetime.time.fromisoformat('19:00:00')
+
+        now_datetime = datetime.datetime.fromisoformat('2021-10-02 12:57:00')
+        self.assertTrue(utils.check_dates_and_times(start_time, end_time, start_date, end_date, now_datetime))
 
 if __name__ == '__name__':
     unittest.main()

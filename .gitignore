@@ -4,3 +4,4 @@ venv/
 dist/
 intus.egg-info/
 todo.txt
+intus/test.py

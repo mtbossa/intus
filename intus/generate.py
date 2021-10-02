@@ -74,7 +74,13 @@ def _generate_showcase_json(local_data_content: list) -> tuple:
     for post_data in local_data_content:
         # Verificar a data (lógica javascript) e dar append ou não no post
         # e baixa somente as mídias que precisam ser mostradas
-        if utils.should_show(post_data['start_date'], post_data['end_date']):
+        if utils.should_show(
+                post_data['start_date'],
+                post_data['end_date'],
+                post_data['start_time'],
+                post_data['end_time'],
+                post_data['recurrence']
+        ):
 
             complete_path = medias.download_media(
                 media_url=post_data['media_url'],
@@ -162,19 +168,22 @@ def generate_local_data_json(content: dict) -> None:
     posts_list = []
     new_media_names_list = []
 
-    for post in content['posts']:
+    for post in content['data']:
         # The name is needed for later verifying if any media should be deleted
         new_media_names_list.append(utils.create_filename(post['media']['name'], post['media']['extension']))
 
         posts_list.append({
-            'post_id': post['id'],
-            'media_name': post['media']['name'],
-            'media_url': 'https://intus-medias-paineis.s3.amazonaws.com/' + post['media']['path'],
-            'media_duration': post['duration'],
-            'media_type': post['media']['type'],
+            'post_id':         post['post_id'],
+            'media_name':      post['media']['name'],
+            'media_url':       'https://intus-medias-paineis.s3.amazonaws.com/' + post['media']['path'],
+            'media_duration':  post['duration'],
+            'media_type':      post['media']['type'],
             'media_extension': post['media']['extension'],
-            'start_date': utils.transform_date_to_epoch(post['start_date']),
-            'end_date': utils.transform_date_to_epoch(post['end_date']),
+            'start_date':      post['start_date'],
+            'end_date':        post['end_date'],
+            'start_time':      post['start_time'],
+            'end_time':        post['end_time'],
+            'recurrence':      post['recurrence']
         })
 
     # Will check if any media should be deleted
@@ -190,7 +199,7 @@ def config_file(display_id: int) -> None:
     config_dict = {
         'display_id': display_id,
         'request_time': 5,
-        'api_url': 'http://192.168.0.102/api/fetch-display-posts/' + str(display_id)
+        'api_url': 'http://192.168.0.102/api/display/' + str(display_id) + '/posts'
     }
 
     config_json = json.dumps(config_dict, indent=2)

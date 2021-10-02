@@ -22,7 +22,7 @@ window.addEventListener('load', (event) => {
     // Code starts here
     setTimeout(() => {
         getFirstData();
-    }, 7000)
+    }, 0)
 
     function getFirstData()
     {

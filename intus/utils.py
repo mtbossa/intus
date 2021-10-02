@@ -69,65 +69,81 @@ def transform_date_to_epoch_seconds(date_string: str) -> float:
     return seconds_since_epoch
 
 
-def should_show(start_date: float, end_date: float) -> bool:
+def should_show(start_date: str, end_date: str, start_time: str, end_time: str, recurrence: list) -> bool:
     """
     Checks if the post should be shown.
-    :param start_date: float Start date of the post in EPOCH float
-    :param end_date: End date of the post in EPOCH float
+    :param start_date: str Start date ISO Format of the post in EPOCH float
+    :param end_date: str End date ISO Format of the post in EPOCH float
+    :param start_time: str Time ISO Format in day that the post should start to be shown
+    :param end_time: str Time ISO Format in day that the post should stop to be shown
+    :param recurrence: list or null If post has recurrence, the recurrence data as list
     :return: True if should show, false otherwise
     """
-    start_datetime = datetime.datetime.fromtimestamp(start_date)
-    end_datetime = datetime.datetime.fromtimestamp(end_date)
-    now_datetime = datetime.datetime.now()
+    start_time = datetime.time.fromisoformat(start_time)
+    end_time = datetime.time.fromisoformat(end_time)
 
-    if check_dates_and_times(start_datetime, end_datetime, now_datetime):
-        return True
+    if not recurrence:
+        start_date = datetime.date.fromisoformat(start_date)
+        end_date = datetime.date.fromisoformat(end_date)
+
+        if check_dates_and_times(start_time, end_time, start_date, end_date):
+            return True
+    else:
+        if today_recurrence(recurrence) and check_dates_and_times(start_time, end_time):
+            return True
 
     return False
 
 
-def check_dates_and_times(start_datetime, end_datetime, now_datetime) -> bool:
+def today_recurrence(recurrence: list, now_date=datetime.date.today()) -> bool:
+    return False
+
+
+def check_dates_and_times(start_time, end_time, start_date=datetime.date.today(), end_date=datetime.date.today(),
+                          now=datetime.datetime.today()) -> bool:
     """
     Checks date and times of the post, verifying if it should be
     shown of not in the given moment (now).
-    :param start_datetime: datetime object Start datetime
-    :param end_datetime: datetime object End datetime
-    :param now_datetime: datetime object Now datetime
+    :param start_time: time object Post start day time
+    :param end_time: time object Post end day time
+    :param start_date: date object Start date, default value today
+    :param end_date: date object End date, default value today
+    :param now: datetime object Now datetime, default value today
     :return: bool True if should show, false otherwise
     """
     # Verificação 1: a data de início deve ser hoje ou antes de hoje,
     # e a de fim deve ser hoje ou depois de hoje.
-    if start_datetime.date() <= now_datetime.date() <= end_datetime.date():
+    if start_date <= now.date() <= end_date:
         # Verificações 2: já sei que posso mostrar, pelos dias, mas
         # preciso verificar as horas.
 
         # Se a hora atual é maior do que a hora de início e menor do que a hora de fim, posso mostrar
         # sem verificar os minutos
-        if start_datetime.hour < now_datetime.hour < end_datetime.hour:
+        if start_time.hour < now.hour < end_time.hour:
             return True
 
         # Sei que posso mostrar pela hora, pois já passou da hora
         # de início da postagem, não preciso verificar mais as horas
         # e minutos de início, somente de fim
-        if start_datetime.hour < now_datetime.hour:
-            if end_datetime.hour >= now_datetime.hour and end_datetime.minute > now_datetime.minute:
+        if start_time.hour < now.hour:
+            if end_time.hour >= now.hour and end_time.minute > now.minute:
                 # Não preciso verificar os minutos, pois sei que
                 # não vai terminar nessa hora ainda.
                 return True
 
         #  Se a hora de início é a mesma da atual, preciso verificar
         #  os minutos de início e fim
-        if start_datetime.hour == now_datetime.hour:
+        if start_time.hour == now.hour:
             # Só mostro se a o minuto de início for o mesmo ou menor que o minuto atual
-            if start_datetime.minute <= now_datetime.minute:
+            if start_time.minute <= now.minute:
                 # Se a hora de fim não a mesma de agora, posso mostrar sem verificar os minutos
-                if end_datetime.hour > now_datetime.hour:
+                if end_time.hour > now.hour:
                     # Sei que posso mostrar pois não vai terminar nessa hora ainda, então não
                     # preciso verificar os minutos de fim
                     return True
                 # Preciso verificar os minutos de fim, pois a hora atual já é a hora de fim
                 # Se os minutos de fim forem maiores do que o minuto atual, posso mostrar
-                elif end_datetime.minute > now_datetime.minute:
+                elif end_time.minute > now.minute:
                     return True
 
     return False
