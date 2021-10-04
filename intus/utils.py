@@ -69,34 +69,83 @@ def transform_date_to_epoch_seconds(date_string: str) -> float:
     return seconds_since_epoch
 
 
-def should_show(start_date: str, end_date: str, start_time: str, end_time: str, recurrence: list) -> bool:
+def should_show1(post_data: dict) -> bool:
+    """
+    Checks if the post should be shown.
+    :param post_data: dict Current post data
+    :return: True if should show, false otherwise
+    """
+    # These two values will always be present and needed in both cases
+    start_time = datetime.time.fromisoformat(post_data['start_time'])
+    end_time = datetime.time.fromisoformat(post_data['end_time'])
+
+    # If not recurrence, means there's start and end date
+    if 'recurrence' in post_data:
+        # Must check the recurrence to know if should be shown today and in now time
+        if today_recurrence(post_data['recurrence']) and check_dates_and_times(start_time, end_time):
+            return True
+    else:
+        start_date = datetime.date.fromisoformat(post_data['start_date'])
+        end_date = datetime.date.fromisoformat(post_data['end_date'])
+
+        if check_dates_and_times(start_time, end_time, start_date, end_date):
+            return True
+
+    return False
+
+
+def should_show(start_time: str, end_time: str, start_date: str = None, end_date: str = None,
+                recurrence: dict = None) -> bool:
     """
     Checks if the post should be shown.
     :param start_date: str Start date ISO Format of the post in EPOCH float
     :param end_date: str End date ISO Format of the post in EPOCH float
     :param start_time: str Time ISO Format in day that the post should start to be shown
     :param end_time: str Time ISO Format in day that the post should stop to be shown
-    :param recurrence: list or null If post has recurrence, the recurrence data as list
+    :param recurrence: dict or null If post has recurrence, the recurrence data as list
     :return: True if should show, false otherwise
     """
+    # These two values will always be present and needed in both cases
     start_time = datetime.time.fromisoformat(start_time)
     end_time = datetime.time.fromisoformat(end_time)
 
-    if not recurrence:
+    # If not recurrence, means there's start and end date
+    if recurrence is None:
         start_date = datetime.date.fromisoformat(start_date)
         end_date = datetime.date.fromisoformat(end_date)
 
         if check_dates_and_times(start_time, end_time, start_date, end_date):
             return True
     else:
+        # Must check the recurrence to know if should be shown today and in now time
         if today_recurrence(recurrence) and check_dates_and_times(start_time, end_time):
             return True
 
     return False
 
 
-def today_recurrence(recurrence: list, now_date=datetime.date.today()) -> bool:
-    return False
+def today_recurrence(recurrence: dict, now_date=datetime.date.today()) -> bool:
+    """
+    Checks the recurrence to know if today is a recurrence day.
+    :param recurrence: list Recurrence information
+    :param now_date: date Today date
+    :return: bool True if today is a day of the recurrence, false otherwise
+    """
+    show = []
+
+    for key, value in recurrence.items():
+        method = getattr(now_date, key)
+
+        if callable(method):
+            method = method()
+
+        if value == method:
+            show.append(True)
+
+    if len(recurrence) != len(show):
+        return False
+
+    return True
 
 
 def check_dates_and_times(start_time, end_time, start_date=datetime.date.today(), end_date=datetime.date.today(),

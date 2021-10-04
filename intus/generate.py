@@ -59,7 +59,7 @@ def current_data_for_display(local_data_path) -> bool:
     return updated
 
 
-def _generate_showcase_json(local_data_content: list) -> tuple:
+def _generate_showcase_json(local_data_content: dict) -> tuple:
     """
     Generate showcase.json, which
     holds the data for which posts should
@@ -69,19 +69,12 @@ def _generate_showcase_json(local_data_content: list) -> tuple:
     :param local_data_content: list Contents from the current local_data.json
     :return: tuple Bool for printing if it was updated or not and the list with filenames for deletion
     """
-    need_media = []
+    needed_media = []
     showcase_content = []
     for post_data in local_data_content:
         # Verificar a data (lógica javascript) e dar append ou não no post
         # e baixa somente as mídias que precisam ser mostradas
-        if utils.should_show(
-                post_data['start_date'],
-                post_data['end_date'],
-                post_data['start_time'],
-                post_data['end_time'],
-                post_data['recurrence']
-        ):
-
+        if utils.should_show1(post_data):
             complete_path = medias.download_media(
                 media_url=post_data['media_url'],
                 media_name=post_data['media_name'],
@@ -90,7 +83,7 @@ def _generate_showcase_json(local_data_content: list) -> tuple:
 
             head, filename = os.path.split(complete_path)
 
-            need_media.append(filename)
+            needed_media.append(filename)
 
             showcase_content.append({
                 'post_id': post_data['post_id'],
@@ -121,7 +114,7 @@ def _generate_showcase_json(local_data_content: list) -> tuple:
 
         updated = True
 
-    return updated, need_media
+    return updated, needed_media
 
 
 def _compare_new_showcase_to_old(new_showcase: list) -> bool:
@@ -168,23 +161,28 @@ def generate_local_data_json(content: dict) -> None:
     posts_list = []
     new_media_names_list = []
 
-    for post in content['data']:
+    for idx, post in enumerate(content['data']):
         # The name is needed for later verifying if any media should be deleted
         new_media_names_list.append(utils.create_filename(post['media']['name'], post['media']['extension']))
 
-        posts_list.append({
-            'post_id':         post['post_id'],
-            'media_name':      post['media']['name'],
-            'media_url':       'https://intus-medias-paineis.s3.amazonaws.com/' + post['media']['path'],
-            'media_duration':  post['duration'],
-            'media_type':      post['media']['type'],
+        post_dict = {
+            'post_id': post['post_id'],
+            'media_name': post['media']['name'],
+            'media_url': 'https://intus-medias-paineis.s3.amazonaws.com/' + post['media']['path'],
+            'media_duration': post['duration'],
+            'media_type': post['media']['type'],
             'media_extension': post['media']['extension'],
-            'start_date':      post['start_date'],
-            'end_date':        post['end_date'],
-            'start_time':      post['start_time'],
-            'end_time':        post['end_time'],
-            'recurrence':      post['recurrence']
-        })
+            'start_time': post['start_time'],
+            'end_time': post['end_time'],
+        }
+
+        if 'start_date' and 'end_date' in post:
+            post_dict['start_date'] = post['start_date']
+            post_dict['end_date'] = post['end_date']
+        elif 'recurrence' in post:
+            post_dict['recurrence'] = post['recurrence']
+
+        posts_list.append(post_dict)
 
     # Will check if any media should be deleted
     medias.check_deletion(new_media_names_list)
